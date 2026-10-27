@@ -5,7 +5,7 @@
     "path": "docs/LABELLING-GUIDE.md",
     "edition": "s46-guide-v1",
     "sha256": "5638d2faa3349fc03c5640d42486a5a2b4413ceb6270a7cb2ee23d27abd2ff85",
-    "note": "sha256 of the working-tree guide bytes on 2026-10-27, when the fixtures were labelled. The guide was not yet committed and was under review in parallel; if its bytes change before its first commit this value must be replaced by the first committed bytes' sha256 and the fixtures re-checked. Revisions after the first commit are appended to revisions with their own sha256.",
+    "note": "sha256 matches the guide bytes committed first in 3d54850, before any extractor source. M2 static review verified this hash against the guide. Later guide revisions are appended to revisions with their own sha256.",
     "revisions": []
   },
   "split": "dev",
