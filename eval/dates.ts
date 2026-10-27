@@ -1,0 +1,5 @@
+import type { Packet } from '../src/core/types';
+import { statePeriods } from '../src/core/asof';
+import { addDays, daysBetween } from '../src/core/dates';
+export function queryDates(packet:Packet):string[]{const e=packet.enactment,out=new Set([e.commencesOn,addDays(e.commencesOn,-1)]);for(const p of statePeriods(packet)){out.add(p.from);out.add(addDays(p.from,p.toExclusive?Math.floor(daysBetween(p.from,p.toExclusive)/2):30));}for(const a of e.amendments)if(a.effectiveOn>addDays(a.enactedOn,1))out.add(addDays(a.enactedOn,1));if(e.sunsetExclusive)out.add(e.sunsetExclusive);return [...out].sort();}
+export function queryStratum(packet:Packet,date:string):string{const e=packet.enactment;if(date<e.commencesOn)return 'pre_commencement';if(e.sunsetExclusive&&date>=e.sunsetExclusive)return 'sunset';if(date===e.commencesOn)return 'commencement';if(e.amendments.some(a=>a.effectiveOn===date))return 'effective_boundary';if(e.amendments.some(a=>a.enactedOn<=date&&date<a.effectiveOn))return 'pending';return 'interior';}
