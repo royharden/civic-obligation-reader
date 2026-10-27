@@ -1,86 +1,68 @@
 # Civic Obligation Reader
 
-> **Fictional enactments only. This reader explains the text you supply. It is not legal advice and does not say how any
-> law applies to anyone.**
-> Unadmitted regression build: independent admission (G1) is pending and no measured result exists.
+> **Fictional enactments only. This explains supplied text, not legal applicability. Not legal advice.**
+> Unadmitted construction build. Independent admission and runtime validation are pending.
 
-That banner text is shown at the top of every view once the UI exists.
+Pick one of six fictional enactments, or paste a bounded `s46.packet.v1` JSON packet. Choose an as-of date to see who must, must not, may or need not do what, by when. Inspect exact source words, pending and unapplied amendments, uncertainty reasons and a second-date comparison. Optional event dates support calendar-day arithmetic. Personal rulings append to browser history; an optional owner-scoped database stores ruling metadata separately.
 
-## What this is
+The root layout keeps the notice visible. Evidence badges say **exact quote in selected version** and verify quote/version only. They do not verify interpretation. Invalid quotes are omitted from the table and CSV/JSON exports with a visible count; diagnostics preserve them. CSV cells neutralize spreadsheet formulas.
 
-You pick or paste one short packet. A packet holds an original, fictional enactment (for example an ordinance of the
-made-up "Town of Larkspur Bend") with structured amendments. You choose an "as of" date. The app lists who **must**,
-**must not**, **may** or **need not** do what, and by when. Every row quotes the exact words of the provisions in force
-on that date. Every field is either a value or `unknown` with a reason from a closed list.
+## Construction status
 
-It explains supplied text. It is not legal advice, not a compliance or reminder tool, and it does not decide whether a
-provision applies to anyone. All enactments are invented; none is a real law.
+Source includes the strict packet parser, version resolver, persistent taint, one-hop dependency handling, rule extraction, code comparator arms, scorer, provider/model boundaries, reservation ledger, sealed-run gates, reader UI, local/remote rulings and SQL migration. The author kit and admission protocol are available for independently appointed A/R sessions. Authored tests and replay examples exist.
 
-## Status: Dirty Mode construction (2026-10-27)
+**Nothing has been installed, built, type-checked, linted, tested or run.** Static source review and syntax parsing are the only checks performed. No lockfile exists. No browser, database, provider endpoint, authentication flow or sealed run has been exercised. Source construction acceptance does not mean runtime readiness. See [deferred validation](docs/DEFERRED-VALIDATION.md) and [limitations](docs/LIMITATIONS.md).
 
-This repository is being built under a static-only construction run. As of this commit:
+## Results
 
-- **Nothing has been installed, built, type-checked, linted, tested or run.** Test files, where they exist, are
-  authored but not executed.
-- **There is no lockfile.** `package.json` pins exact versions; `npm install` (which creates `package-lock.json`) is
-  deferred.
-- **No result exists.** There are no measured numbers anywhere in this repository, and none should be quoted.
-- **Gate G1 (independent admission) is PENDING.** The independent hidden-set author (A) and blind relabeller (R) have
-  not been appointed. Without them the project's claim cannot be tested; the build is an unadmitted regression build.
-- **Spend: $0.** Model arms (M1a, M1b, H, J) are built later as adapters and replay paths only; their status is
-  `not_run`.
-- Every deferred check, with the exact command to run later, is listed in
-  [docs/DEFERRED-VALIDATION.md](docs/DEFERRED-VALIDATION.md).
+<!-- s46:measured-results:start -->
+No measured results. Independent admission and runtime validation are pending.
+<!-- s46:measured-results:end -->
 
-## Preregistered claim (unmeasured)
+The preregistered, unmeasured comparison asks whether the default pipeline achieves higher exact actor/modality/deadline tuple F1 than the stronger pinned one-pass model comparator, without higher wrong-version rates or lower action fidelity/slot recall. A tie or loss must be reported. Builder-authored development expectations and authored replays never establish this claim.
 
-On held-out, independently authored fictional enactments, scored per (enactment, as-of date) query, the default
-pipeline has a wrong-version rate (per assertion and per query) no higher than, a higher end-to-end tuple F1 (actor,
-modality, deadline) than, no lower action fidelity than, and no lower slot recall than one model pass given the same
-original text, amendment operations and date. A tie or a loss will be published. Nothing here has been measured.
+G1 is pending Roy-appointed independent hidden author A and blind relabeller R. Both the original Claude builder and this Codex successor, including their children, belong to the excluded builder lineage. The builder never authors hidden data or admission receipts. Held-out data and ledgers stay outside this repository.
 
-## What exists now (milestone M1 tooling)
+## Local use after owner closes Dirty Mode
 
-| Path | Purpose |
-|---|---|
-| `schema/packet.schema.json` | JSON Schema (2020-12) for a packet (`s46.packet.v1`). |
-| `schema/gold.schema.json` | JSON Schema (2020-12) for one line of `gold.jsonl` (`s46.gold.v1`). |
-| `tools/author-kit/` | Standalone checkers for authors and relabellers (Node built-ins only; see its README). |
-| `tools/admit.ts` | Read-only G1 checker: prints `GO`, `NO-GO` or `PENDING` with reasons. |
-| `docs/` | Labelling guide, packet format, trap catalogue, author/relabeller packets, admission protocol, deferred checks. |
-| `package.json`, `tsconfig.json`, `vite.config.ts`, `vitest.config.ts`, `eslint.config.js`, `index.html` | Scaffold for later milestones (not installed). |
-
-## Planned layout
-
-```
-docs/       labelling guide, packet format, traps, A/R packets, admission protocol, deferred validation, limitations
-schema/     packet.schema.json, gold.schema.json
-tools/      author-kit/ (standalone), admit.ts
-fixtures/   dev/E01..E06 (packet.json, states/<stateId>/<sectionId>.txt, gold.jsonl, TRAPS.md), MANIFEST.json, replay/authored/
-src/        core/ (pure TypeScript version engine and extractor), ui/, state/, export/, lib/, main.tsx
-eval/       arms/, providers/, prompts/, scorer and sealed-run tooling, experiment.json
-scripts/    eval.ts, eval-heldout.ts
-supabase/   migrations/ (rulings table with row-level security)
-tests/      unit and component tests, coverage-matrix.json
-```
-
-Hidden (held-out) enactments, the relabeller's labels and the admission receipts live outside this repository and are
-never committed here.
-
-## Commands (later; none has been run)
-
-```
-npm install            # creates package-lock.json (deferred)
+```sh
+npm install
 npm run typecheck
 npm run lint
 npm test
-npm run admit          # G1 status: GO | NO-GO | PENDING
-npm run dev -- --port <port claimed through agent-ports>
+npm run build
+npm run dev -- --port <claimed-local-port>
 ```
 
-Author-kit commands run on plain Node 22.6 or later without any install; see
-[tools/author-kit/README.md](tools/author-kit/README.md).
+Node >=22.6 is required. Installation creates the deferred lockfile. Claim the port under the project resource policy before starting a server. Missing remote configuration gives keyless local mode; browser network requests are blocked. Source is rendered as React text nodes.
 
-## Licence
+The optional browser configuration names are `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Provider access belongs only in the local evaluator environment under `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` and `MODEL_BASE_URL`, never a public browser prefix. No provider access is supplied in this repository. See [Bolt activation handoff](BOLT-HANDOFF.md); importing or provisioning is not authorized in this run.
 
-Code: MIT (see [LICENSE](LICENSE)). Fixture texts: CC0-1.0, original and fictional.
+## Evaluation after validation and approvals
+
+```sh
+npm run admit
+npm run eval -- --split dev --run-kind measured
+npm run eval:heldout -- --run-kind measured
+```
+
+These commands have not been run. The dev entrypoint is deterministic code-arm evaluation. The sealed entrypoint refuses missing admission, an unfrozen/incomplete experiment, missing contested-label binding, unsupported run kind or an unaffordable full schedule before unsealing. The one-use consume marker prevents rerunning a sealed edition. Read its explicit configuration requirements before activation.
+
+`eval/experiment.json` is deliberately unconfigured: caps zero, model IDs null, default B0. The approved USD 40 total ceiling is a ceiling only; actual spend is zero and live provider access/model approval is pending. Reservations precede dispatch; unknown usage retains the reservation. J remains not_run pending relationship disclosure. No model is called by the browser.
+
+Replay run kinds are `authored_replay` and `captured_replay`; measured reports refuse either. `fixtures/replay/authored/` contains builder boundary examples, not captured responses. No headline or numeric performance claim is available.
+
+## Project map
+
+| Path | Purpose |
+|---|---|
+| `src/core/` | Pure packet/version/extraction/evidence logic |
+| `src/ui/`, `src/state/`, `src/export/` | Reader, personal rulings, explicit exports |
+| `fixtures/dev/`, `fixtures/MANIFEST.json` | Six original CC0 fictional dev enactments and hand-written expectations |
+| `eval/`, `scripts/` | Code/model arms, scoring, reports and gated local evaluation |
+| `tools/author-kit/`, `tools/admit.ts` | Isolated authorship tools and receipt-only admission check |
+| `schema/`, `docs/` | Packet/gold contracts, frozen guide, author packets and validation handoff |
+| `supabase/migrations/` | Unapplied owner-scoped ruling migration |
+| `tests/` | Authored, unexecuted checks |
+
+Code: MIT ([LICENSE](LICENSE)). Fixture texts: original fiction, CC0-1.0. No push, remote, deployment or publication has occurred.
