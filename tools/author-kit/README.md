@@ -85,6 +85,13 @@ disagree, report it rather than working around it.
 
 ## Receipts
 
+Eligibility uses the cumulative builder roots `0805_Claude_Opus55_S46INT` (Claude) and
+`0914_Codex_GPT-6_N20CodexInt46` (Codex), plus their parent/fork descendants. A must use a harness other than every builder
+root's (currently neither Claude nor Codex). R may use any harness but must be outside every builder root and distinct from A
+in both ancestry directions. Succession adds roots without removing predecessors. `admit.ts` uses exact registry identities;
+missing/ambiguous records or lineage columns, missing ancestors, cycles and exhausted traversal yield PENDING. Attestations do
+not replace registry evidence. These five kit tools check labels and packets; they do not establish actor eligibility.
+
 `docs/ADMISSION-PROTOCOL.md` defines the receipts. A records each tool's `--json` result in
 `admission/A-RECEIPT.json` (`checks.validatePacket`, `checks.checkOffsets`, `checks.checkValues`,
 `checks.queryDates`), each as `{ "ok": <exit code 0 on every run>, "runs": int, "problems": int }`, together with the

@@ -14,7 +14,7 @@
  * It never opens, lists, stats or hashes admission/CONTESTED.json, heldout-sealed/ or relabel-sealed/: receipt paths
  * under those folders are compared as strings only. It imports nothing from src/ or eval/ (Node built-ins only).
  *
- * VERDICT (protocol section 8): PENDING while any of the three receipts is missing or the registry cannot be read
+ * VERDICT (protocol section 8): PENDING while any of the three receipts is missing or registry identity/ancestry is unresolved
  * (failed checks are still listed); otherwise NO-GO if any check fails (each failure marked `fixable` or `final`),
  * PENDING if something else cannot be checked yet (for example no manifest), else GO.
  * Output never repeats ids, callsigns, paths or family names taken from receipts: only check numbers, field names,
@@ -81,7 +81,11 @@ const REGISTRY_DIR = resolve(OUTER, "..", ".agent-registry");
 const RECEIPT_NAMES = ["A-RECEIPT.json", "R-SEAL.json", "ADMISSION.json"] as const;
 const ALLOWED_RECEIPTS = new Set<string>(RECEIPT_NAMES.map((f) => join(ADMISSION_DIR, f)));
 
-const BUILDER_CALLSIGN = "0805_Claude_Opus55_S46INT";
+/** Cumulative, append-only builder roots: succession never removes an earlier builder. */
+export const BUILDER_ROOTS = [
+  { id: "0805", name: "0805_Claude_Opus55_S46INT", harness: "Claude" },
+  { id: "0914", name: "0914_Codex_GPT-6_N20CodexInt46", harness: "Codex" },
+] as const;
 const GUIDE_PATH = "docs/LABELLING-GUIDE.md";
 const MANIFEST_PATH = "fixtures/MANIFEST.json";
 const DEV_IDS = ["E01", "E02", "E03", "E04", "E05", "E06"];
@@ -143,6 +147,7 @@ interface Finding {
 }
 
 const findings: Finding[] = [];
+let identityUnresolved = false;
 const record = (check: string, status: Status, message: string, severity: Severity | null = null): void => {
   findings.push({ check, status, severity, message });
 };
@@ -469,22 +474,24 @@ function gitBlob(rev: string, path: string): Buffer | null {
 // AgentNamer registry (read-only)
 // ---------------------------------------------------------------------------------------------
 
-interface Agent {
+export interface Agent {
   id: string;
   name: string;
   harness: string;
   parentId: string;
+  forkedFrom: string;
 }
 
-interface Registry {
+export interface Registry {
   byName: Map<string, Agent>;
   byId: Map<string, Agent>;
 }
 
-function parseCsvLine(line: string): string[] {
+function parseCsvLine(line: string): string[] | null {
   const out: string[] = [];
   let cur = "";
   let quoted = false;
+  let closed = false;
   for (let k = 0; k < line.length; k++) {
     const c = line.charAt(k);
     if (quoted) {
@@ -493,60 +500,127 @@ function parseCsvLine(line: string): string[] {
         k++;
       } else if (c === '"') {
         quoted = false;
+        closed = true;
       } else {
         cur += c;
       }
     } else if (c === '"') {
+      if (cur.length > 0 || closed) return null;
       quoted = true;
     } else if (c === ",") {
       out.push(cur);
       cur = "";
+      closed = false;
     } else {
+      if (closed) return null;
       cur += c;
     }
   }
+  if (quoted) return null;
   out.push(cur);
   return out;
 }
 
-function loadRegistry(): Registry | null {
-  const csv = join(REGISTRY_DIR, "registry.csv");
-  if (!existsSync(assertReadable(csv))) return null;
-  let text: string;
-  try {
-    text = readFileSync(assertReadable(csv), "utf8");
-  } catch {
-    return null;
-  }
+interface RegistryLoad {
+  registry: Registry | null;
+  problem: string | null;
+}
+
+/** Incomplete or ambiguous evidence is unavailable, never an independent identity. */
+export function parseRegistry(text: string): RegistryLoad {
+  const unavailable = (problem: string): RegistryLoad => ({ registry: null, problem });
   const lines = text.split(/\r?\n/).filter((l) => l.length > 0);
   const header = parseCsvLine(lines[0] ?? "");
+  if (header === null || new Set(header).size !== header.length) return unavailable("registry CSV header is malformed or duplicated");
   const col = (name: string): number => header.indexOf(name);
-  const [iId, iName, iHarness, iParent] = [col("id"), col("name"), col("harness"), col("parent_id")];
-  if (iId < 0 || iName < 0 || iHarness < 0) return null;
+  const [iId, iName, iHarness, iParent, iFork] = [col("id"), col("name"), col("harness"), col("parent_id"), col("forked_from")] as const;
+  if (iId < 0 || iName < 0 || iHarness < 0 || iParent < 0 || iFork < 0) {
+    return unavailable("registry requires id, name, harness, parent_id and forked_from columns");
+  }
   const reg: Registry = { byName: new Map(), byId: new Map() };
+  const validId = (id: string): boolean => /^[0-9A-Z]{2}[0-9]{2}$/.test(id);
   for (const line of lines.slice(1)) {
     const cells = parseCsvLine(line);
+    if (cells === null || cells.length !== header.length) return unavailable("registry CSV row is malformed or incomplete");
     const agent: Agent = {
       id: cells[iId] ?? "",
       name: cells[iName] ?? "",
       harness: cells[iHarness] ?? "",
-      parentId: iParent >= 0 ? cells[iParent] ?? "" : "",
+      parentId: cells[iParent] ?? "",
+      forkedFrom: cells[iFork] ?? "",
     };
-    if (agent.id.length === 0 || agent.name.length === 0) continue;
+    if (!validId(agent.id) || agent.name.trim().length === 0 || agent.harness.trim().length === 0 ||
+        (agent.parentId !== "" && !validId(agent.parentId)) || (agent.forkedFrom !== "" && !validId(agent.forkedFrom))) {
+      return unavailable("registry row has missing or malformed identity/lineage evidence");
+    }
+    if (reg.byName.has(agent.name) || reg.byId.has(agent.id)) return unavailable("registry has duplicate identity keys");
     reg.byName.set(agent.name, agent);
     reg.byId.set(agent.id, agent);
   }
-  return reg;
+  return { registry: reg, problem: null };
 }
 
-/** True when `descendant` equals `ancestorId` or has it somewhere up its parent chain. */
-function inLineage(reg: Registry, descendant: Agent, ancestorId: string): boolean {
-  let cur: Agent | undefined = descendant;
-  for (let hops = 0; cur !== undefined && hops < 64; hops++) {
-    if (cur.id === ancestorId) return true;
-    cur = cur.parentId.length > 0 ? reg.byId.get(cur.parentId) : undefined;
+function loadRegistry(): RegistryLoad {
+  const csv = join(REGISTRY_DIR, "registry.csv");
+  let text: string;
+  try {
+    text = readFileSync(assertReadable(csv), "utf8");
+  } catch {
+    return { registry: null, problem: "registry CSV cannot be read" };
   }
-  return false;
+  return parseRegistry(text);
+}
+
+interface Ancestry {
+  ids: Set<string>;
+  problem: string | null;
+}
+
+/** Follow both parent and fork edges to recorded roots, with explicit unresolved states. */
+export function ancestry(reg: Registry, descendant: Agent): Ancestry {
+  const ids = new Set<string>();
+  const active = new Set<string>();
+  const complete = new Set<string>();
+  let problem: string | null = null;
+  const visit = (agent: Agent, depth: number): void => {
+    ids.add(agent.id);
+    if (active.has(agent.id)) { problem ??= "registry lineage contains a cycle"; return; }
+    if (depth >= 64) { problem ??= "registry lineage traversal limit (64) exhausted"; return; }
+    if (complete.has(agent.id)) return;
+    active.add(agent.id);
+    for (const id of [agent.parentId, agent.forkedFrom]) {
+      if (id === "") continue; // Explicit empty cell records no parent/fork.
+      const next = reg.byId.get(id);
+      if (next === undefined) problem ??= "registry lineage references a missing ancestor record";
+      else visit(next, depth + 1);
+    }
+    active.delete(agent.id);
+    complete.add(agent.id);
+  };
+  visit(descendant, 0);
+  return { ids, problem };
+}
+
+export function resolveBuilders(reg: Registry): { builders: Agent[]; problems: string[] } {
+  const builders: Agent[] = [];
+  const problems: string[] = [];
+  for (const [index, root] of BUILDER_ROOTS.entries()) {
+    const agent = reg.byId.get(root.id);
+    if (agent === undefined || reg.byName.get(root.name) !== agent || agent.name !== root.name || agent.harness !== root.harness) {
+      problems.push(`builder root ${index + 1}: exact registry identity is missing or mismatched`);
+      continue;
+    }
+    builders.push(agent);
+    const lineage = ancestry(reg, agent);
+    if (lineage.problem !== null) problems.push(`builder root ${index + 1}: ${lineage.problem}`);
+  }
+  return { builders, problems };
+}
+
+/** A known relationship remains a final failure even when another branch is unresolved. */
+export function relationship(reg: Registry, descendant: Agent, ancestorId: string): "related" | "independent" | "unresolved" {
+  const lineage = ancestry(reg, descendant);
+  return lineage.ids.has(ancestorId) ? "related" : lineage.problem !== null ? "unresolved" : "independent";
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -731,24 +805,47 @@ function checkMaterialsAndGuide(r: JsonObject, label: string, currentGuide: stri
   if (unreadable > 0) warn(C7, `${label}.materials: ${unreadable} path(s) are not readable inner-repo files`);
 }
 
-function checkIdentity(
+export function identityAssessment(
   callsign: unknown,
   harness: unknown,
   who: "author A" | "relabeller R",
-  check: string,
   reg: Registry | null,
-  builder: Agent,
-): Agent | null {
-  if (typeof callsign !== "string" || callsign.length === 0) return null;
-  if (reg === null) return null; // reported once as PENDING by main
+  builders: readonly Agent[],
+): { agent: Agent | null; findings: Omit<Finding, "check">[] } {
+  const result: { agent: Agent | null; findings: Omit<Finding, "check">[] } = { agent: null, findings: [] };
+  const add = (status: Status, message: string, severity: Severity | null = null): void => { result.findings.push({ status, message, severity }); };
+  if (typeof callsign !== "string" || callsign.length === 0) {
+    add("FAIL", `${who}'s receipt callsign must be a non-empty string`, "fixable");
+    return result;
+  }
+  if (reg === null) {
+    add("PENDING", `${who}'s registry identity cannot be resolved: registry unavailable`);
+    return result;
+  }
   const agent = reg.byName.get(callsign) ?? null;
   if (agent === null) {
-    fail(check, `${who}'s callsign is not in the AgentNamer registry`);
-    return null;
+    add("PENDING", `${who}'s exact identity is missing from the AgentNamer registry`);
+    return result;
   }
-  if (harness !== agent.harness) fail(check, `${who}'s receipt harness differs from its registry harness (${agent.harness})`);
-  if (inLineage(reg, agent, builder.id)) fail(check, `${who} is in the builder lineage`, "final");
-  return agent;
+  result.agent = agent;
+  if (harness !== agent.harness) add("FAIL", `${who}'s receipt harness differs from its registry harness (${agent.harness})`, "fixable");
+  const lineage = ancestry(reg, agent);
+  if (builders.some((builder) => lineage.ids.has(builder.id))) add("FAIL", `${who} is in the cumulative builder lineage`, "final");
+  if (lineage.problem !== null) add("PENDING", `${who}'s independence is unresolved: ${lineage.problem}`);
+  if (builders.length !== BUILDER_ROOTS.length) add("PENDING", `${who}'s independence is unresolved: not every builder root has an exact registry identity`);
+  if (who === "author A" && builders.some((builder) => builder.harness === agent.harness)) {
+    add("FAIL", `author A's harness ${agent.harness} is an excluded builder harness`, "final");
+  }
+  if (result.findings.length === 0) add("PASS", `${who} is registered outside every builder root${who === "author A" ? " with a different harness from every builder" : ""}`);
+  return result;
+}
+
+function checkIdentity(callsign: unknown, harness: unknown, who: "author A" | "relabeller R", check: string,
+  reg: Registry | null, builders: readonly Agent[]): Agent | null {
+  const assessed = identityAssessment(callsign, harness, who, reg, builders);
+  if (assessed.findings.some((finding) => finding.status === "PENDING")) identityUnresolved = true;
+  for (const finding of assessed.findings) record(check, finding.status, finding.message, finding.severity);
+  return assessed.agent;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -759,7 +856,7 @@ function checkAuthorReceipt(
   a: JsonObject,
   devFamilies: string[],
   reg: Registry | null,
-  builder: Agent,
+  builders: readonly Agent[],
   currentGuide: string | null,
 ): Agent | null {
   checkShape(a, "A-RECEIPT", {
@@ -916,12 +1013,8 @@ function checkAuthorReceipt(
 
   checkMaterialsAndGuide(a, "A-RECEIPT", currentGuide);
 
-  // Identity: registered, harness differs from the builder's, outside the builder lineage.
-  const author = checkIdentity(a.authorCallsign, a.harness, "author A", C3, reg, builder);
-  if (author !== null) {
-    if (author.harness === builder.harness) fail(C3, `author A's harness ${author.harness} equals the builder's harness`, "final");
-    else pass(C3, `author A is registered with harness ${author.harness} (builder: ${builder.harness})`);
-  }
+  // Identity: cumulative builder ancestry and all builder harnesses are excluded for A.
+  const author = checkIdentity(a.authorCallsign, a.harness, "author A", C3, reg, builders);
 
   // Attestation: original (check 5), the rest (check 7).
   const att = a.attestation;
@@ -1165,16 +1258,17 @@ function main(argv: string[]): number {
   const json = argv.includes("--json");
 
   // Registry and builder identity.
-  const reg = loadRegistry();
-  let builder: Agent | null = null;
+  const loadedRegistry = loadRegistry();
+  const reg = loadedRegistry.registry;
+  let builders: Agent[] = [];
+  identityUnresolved = reg === null;
   if (reg === null) {
-    pending(C3, `AgentNamer registry not readable at ${REGISTRY_DIR}; identities cannot be verified`);
+    pending(C3, `${loadedRegistry.problem ?? "registry unavailable"}; identities cannot be verified`);
   } else {
-    builder = reg.byName.get(BUILDER_CALLSIGN) ?? null;
-    if (builder === null) warn(C3, `builder ${BUILDER_CALLSIGN} not found in the registry; harness comparison uses the callsign`);
-  }
-  if (builder === null) {
-    builder = { id: BUILDER_CALLSIGN.slice(0, 4), name: BUILDER_CALLSIGN, harness: BUILDER_CALLSIGN.split("_")[1] ?? "", parentId: "" };
+    const resolved = resolveBuilders(reg);
+    builders = resolved.builders;
+    identityUnresolved = resolved.problems.length > 0;
+    for (const problem of resolved.problems) pending(C3, problem);
   }
 
   // Manifest (optional until M2).
@@ -1211,26 +1305,32 @@ function main(argv: string[]): number {
   const adm = admLoaded?.value ?? null;
 
   let author: Agent | null = null;
-  if (aReceipt !== null) author = checkAuthorReceipt(aReceipt, devFamilies, reg, builder, currentGuide);
+  if (aReceipt !== null) author = checkAuthorReceipt(aReceipt, devFamilies, reg, builders, currentGuide);
   if (seal !== null) checkSeal(seal, aReceipt, currentGuide);
   if (adm !== null) checkAdmission(adm, seal, aLoaded?.sha256 ?? null, sealLoaded?.sha256 ?? null, currentGuide);
 
   // R's identity: registered, distinct from A, outside the builder lineage.
   const rSource = adm ?? seal;
   if (rSource !== null) {
-    const r = checkIdentity(rSource.relabellerCallsign, rSource.harness, "relabeller R", C4, reg, builder);
+    const r = checkIdentity(rSource.relabellerCallsign, rSource.harness, "relabeller R", C4, reg, builders);
     if (r !== null && reg !== null) {
-      if (author !== null && (r.id === author.id || inLineage(reg, r, author.id) || inLineage(reg, author, r.id))) {
+      const rToA = author === null ? null : relationship(reg, r, author.id);
+      const aToR = author === null ? null : relationship(reg, author, r.id);
+      if (rToA === "related" || aToR === "related") {
         fail(C4, "relabeller R is not distinct from author A (same agent or same lineage)", "final");
+      } else if (rToA === "unresolved" || aToR === "unresolved") {
+        identityUnresolved = true;
+        pending(C4, "A/R distinctness is unresolved: registry ancestry is incomplete");
       } else if (author !== null) {
-        pass(C4, `relabeller R (${r.harness}) is registered and distinct from author A and the builder`);
-      } else if (aReceipt === null) {
-        pending(C4, "A-RECEIPT.json unavailable; R's distinctness from A cannot be checked yet");
+        pass(C4, `relabeller R (${r.harness}) is registered and distinct from author A`);
+      } else {
+        identityUnresolved = true;
+        pending(C4, "author A's registry identity unavailable; R's distinctness from A cannot be checked yet");
       }
     }
   }
 
-  const blocked = missing.size > 0 || reg === null;
+  const blocked = missing.size > 0 || identityUnresolved;
   const verdict = blocked
     ? "PENDING"
     : findings.some((f) => f.status === "FAIL")
@@ -1264,4 +1364,7 @@ function main(argv: string[]): number {
   return verdict === "GO" ? 0 : verdict === "NO-GO" ? 1 : 2;
 }
 
-process.exitCode = main(process.argv.slice(2));
+// Importing pure identity helpers for the authored tests does not run admission or read any files.
+if (process.argv[1] !== undefined && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))) {
+  process.exitCode = main(process.argv.slice(2));
+}

@@ -7,9 +7,13 @@ sees it before a frozen, one-time evaluation. Nothing has been run or measured; 
 ## 1. Who may be A
 
 - Appointed by **Roy** (owner). The project's plan does not appoint anyone, including its planning agents.
-- **Outside the builder lineage**: not S46-INT `0805_Claude_Opus55_S46INT`, not any of its subagents, not a session it spawned.
-- **Different harness from the builder.** The builder runs in Claude Code (registry harness `Claude`), so A runs in another
-  harness (for example Codex, Grok, Cursor or Antigravity).
+- **Outside the cumulative builder lineage**: neither predecessor `0805_Claude_Opus55_S46INT` nor successor
+  `0914_Codex_GPT-6_N20CodexInt46`, nor any descendant through parent or fork links of either root. Succession adds roots;
+  it never removes an earlier builder.
+- **Different harness from every builder root.** The exact registry roots currently use `Claude` and `Codex`, so A uses
+  another harness (for example Grok, Cursor or Antigravity). A fresh Claude or Codex session is still ineligible as A.
+- Registry identity and ancestry must be complete: missing roots/ancestors, missing lineage columns, cycles or exhausted
+  traversal leave eligibility **PENDING**, never inferred from a callsign or from the `noBuilderLineage` attestation alone.
 - Not the relabeller R.
 - Claims an AgentNamer callsign in `C:\Users\Roy Harden\OneDrive\PJ-OD\Bolt.New\.agent-registry\` and uses it as `labeller` and
   `fictionalProvenance.author`.
@@ -139,7 +143,7 @@ When all ten enactments pass the kit, write `admission/A-RECEIPT.json` exactly i
 {
   "schemaVersion": "s46.a-receipt.v1",
   "authorCallsign": "<A callsign>",
-  "harness": "Codex",
+  "harness": "Grok",
   "model": "<model>",
   "registry": "C:/Users/Roy Harden/OneDrive/PJ-OD/Bolt.New/.agent-registry",
   "writtenAt": "2026-11-02T15:04:05Z",

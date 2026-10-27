@@ -11,13 +11,18 @@ or run.
 
 | Actor | Who | Writes | Reads | Never |
 |---|---|---|---|---|
-| Builder lineage | S46-INT `0805_Claude_Opus55_S46INT` and its subagents | the inner repo (guide, packet format, schemas, author kit, dev fixtures, product code) | receipts, only through `tools/admit.ts`; hidden bytes and `CONTESTED.json` only through `scripts/eval-heldout.ts` after the freeze | opens, lists, hashes or copies `heldout-sealed/` or `relabel-sealed/` before the post-freeze unseal; writes any receipt |
-| Author **A** | appointed by Roy; outside the builder lineage; harness different from the builder's (builder harness = `Claude`) | `heldout-sealed/H01..H10/`, `admission/A-RECEIPT.json` | the frozen A materials (`docs/AUTHOR-PACKET.md` section 3) | reads `relabel-sealed/` or the repo's `src/`, `eval/`, `scripts/`, `tests/`, `fixtures/`, prompts, recorded responses or any system output |
+| Builder lineage | cumulative roots `0805_Claude_Opus55_S46INT` and `0914_Codex_GPT-6_N20CodexInt46`, and every parent/fork descendant of either | the inner repo (guide, packet format, schemas, author kit, dev fixtures, product code) | receipts, only through `tools/admit.ts`; hidden bytes and `CONTESTED.json` only through `scripts/eval-heldout.ts` after the freeze | opens, lists, hashes or copies `heldout-sealed/` or `relabel-sealed/` before the post-freeze unseal; writes any receipt |
+| Author **A** | appointed by Roy; outside every builder root's lineage; harness different from every builder root's (currently neither `Claude` nor `Codex`) | `heldout-sealed/H01..H10/`, `admission/A-RECEIPT.json` | the frozen A materials (`docs/AUTHOR-PACKET.md` section 2) | reads `relabel-sealed/` or the repo's `src/`, `eval/`, `scripts/`, `tests/`, `fixtures/`, prompts, recorded responses or any system output |
 | Relabeller **R** | appointed by Roy; distinct from A and from the builder lineage | `relabel-sealed/H01..H10/`, `admission/R-SEAL.json`, `admission/CONTESTED.json`, `admission/ADMISSION.json` | the frozen R materials; each hidden `packet.json`; A's other hidden files only after `R-SEAL.json` exists | sees builder code, dev data, prompts or system outputs before `ADMISSION.json` |
 | Roy | owner | appointments; optional adjudication of disagreements; guide-revision approval | anything | — |
 | `tools/admit.ts` | builder-written, read-only | nothing (prints a verdict) | the inner repo, the AgentNamer registry, `A-RECEIPT.json`, `R-SEAL.json`, `ADMISSION.json` | opens `CONTESTED.json`, `heldout-sealed/` or `relabel-sealed/`; imports from `src/` or `eval/`; prints ids or paths from receipts |
 
-The AgentNamer registry is `Bolt.New\.agent-registry\` (it holds the builder's callsign). A and R each claim a callsign there.
+The AgentNamer registry is `Bolt.New\.agent-registry\` (it holds every builder root's exact identity). A and R each claim a callsign there.
+The builder-root set is append-only across succession. `tools/admit.ts` resolves each root by its pinned registry ID, exact name
+and harness; it never derives trusted identity from a callsign. Parent and fork links both count as lineage. A's excluded harness
+set is derived from all resolved roots; R may use any harness but must be outside every builder root and distinct from A in both
+ancestry directions. Missing or ambiguous identity/lineage evidence (including a missing root/ancestor, absent `parent_id` or
+`forked_from` column, malformed/duplicate registry row, cycle or the 64-level traversal limit) leaves admission **PENDING**.
 Custody is by instruction plus recorded hashes, not cryptography.
 
 ## 2. Order of work (blind order)
@@ -56,7 +61,7 @@ values are 64 lowercase hex characters over the exact file bytes. Timestamps are
 |---|---|---|
 | `schemaVersion` | `"s46.a-receipt.v1"` | |
 | `authorCallsign` | string | A's AgentNamer callsign |
-| `harness` | string | A's registry harness; must differ from the builder's (`Claude`) |
+| `harness` | string | A's registry harness; must differ from every builder root's (currently `Claude` and `Codex` are excluded) |
 | `model` | string | |
 | `registry` | string | absolute path of the AgentNamer registry folder |
 | `writtenAt` | timestamp | |
@@ -234,7 +239,7 @@ fresh R instead; round-2 relabels by the same R are not blind and the receipt sa
 2. Dev: six enactments validate; every dev expected quote occurs at its offsets in its hand-written state text; dev families are
    disjoint from `A-RECEIPT.families`.
 3. Hidden, from receipts only: A reports 10 enactments, every check a passing CheckResult (`ok: true`), trap floors met (`docs/TRAPS.md` section 1); A is in the
-   registry with harness ≠ the builder's and outside the builder lineage; `ADMISSION.recheck` confirms these.
+   registry with harness different from every builder root's and outside every builder root's parent/fork lineage; `ADMISSION.recheck` confirms these.
 4. R's receipts exist with the same `relabellerCallsign` and `harness`; R is registered, distinct from A and from the builder
    lineage; `agreement` meets every threshold of section 6; `verdict` is `GO`; `contested` has a sha256 and a count.
 5. `A-RECEIPT.attestation.original` is true; `originalityReview` and `denylistScan` report `ok: true`.
@@ -245,11 +250,11 @@ fresh R instead; round-2 relabels by the same R are not blind and the receipt sa
    `guideSha256` equals the manifest's current guide hash.
 
 Verdicts:
-- **PENDING**: any of `A-RECEIPT.json`, `R-SEAL.json`, `ADMISSION.json` is missing (or the registry cannot be read). Not a
-  failure. This is the status today.
+- **PENDING**: any of `A-RECEIPT.json`, `R-SEAL.json`, `ADMISSION.json` is missing, or registry identity/ancestry evidence is
+  unresolved as described in section 1. Other failed checks are still listed, with their severity. This is the status today.
 - **NO-GO**: all receipts present and any check fails. Each reason is marked `fixable` (malformed or mismatched receipt, missing
-  field, bad hash: the writer repairs it and admit runs again) or `final` (a second agreement failure; A in the builder's harness or
-  lineage; R not distinct; an isolation or blind-order breach). A final NO-GO means no headline claim: the repo stays an unadmitted
+  field, bad hash: the writer repairs it and admit runs again) or `final` (a second agreement failure; A in any builder harness or
+  lineage; R in any builder lineage or not distinct from A; an isolation or blind-order breach). A final NO-GO means no headline claim: the repo stays an unadmitted
   regression build.
 - **GO**: every check passes and `ADMISSION.verdict` is `GO`.
 

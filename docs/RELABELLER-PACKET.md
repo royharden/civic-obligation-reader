@@ -7,8 +7,12 @@ measured; do not report or imply any result.
 
 ## 1. Who may be R
 
-- Appointed by **Roy**. Distinct from author A and from the builder lineage (S46-INT `0805_Claude_Opus55_S46INT` and any of its
-  subagents or spawned sessions). Not a subagent of A. Any harness.
+- Appointed by **Roy**. Distinct from author A (neither the same agent nor an ancestor/descendant through parent or fork
+  links) and outside the cumulative builder lineage: predecessor `0805_Claude_Opus55_S46INT`, successor
+  `0914_Codex_GPT-6_N20CodexInt46`, and all parent/fork descendants of either root. Succession adds roots; it never removes
+  an earlier builder. R may use any harness, including a builder harness, if its exact registry identity proves independence.
+- Missing roots/ancestors, missing lineage columns, cycles or exhausted traversal leave eligibility **PENDING**. A callsign
+  or `noBuilderLineage` attestation alone cannot establish independence.
 - Claims an AgentNamer callsign in `C:\Users\Roy Harden\OneDrive\PJ-OD\Bolt.New\.agent-registry\` and uses it as `labeller`.
 
 ## 2. Inputs and access limits
