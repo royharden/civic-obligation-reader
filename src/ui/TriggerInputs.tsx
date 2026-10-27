@@ -1,0 +1,3 @@
+export function TriggerInputs({ keys, dates, onChange }: { keys: string[]; dates: Record<string, string>; onChange: (dates: Record<string, string>) => void }) {
+  return <details><summary>Event dates · {keys.length} recognised anchors</summary><p>Optional supplied dates calculate calendar-day deadlines. No applicability judgment is made.</p>{keys.length === 0 && <p>No known event anchors in this view.</p>}{keys.map(key => <label key={key}>{key}<input type="date" value={dates[key] ?? ''} onChange={e => { const next = { ...dates }; if (e.target.value) next[key] = e.target.value; else delete next[key]; onChange(next); }} /></label>)}</details>;
+}
