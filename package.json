@@ -15,6 +15,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "eval": "tsx scripts/eval.ts",
+    "eval:models": "tsx scripts/eval-models.ts",
     "eval:heldout": "tsx scripts/eval-heldout.ts",
     "admit": "tsx tools/admit.ts"
   },
