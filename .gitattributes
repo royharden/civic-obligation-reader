@@ -1,0 +1,4 @@
+* text=auto eol=lf
+fixtures/** -text
+docs/LABELLING-GUIDE.md -text
+*.txt -text
