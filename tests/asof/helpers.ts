@@ -1,0 +1,4 @@
+import type { Amendment, Operation, Packet, Section } from '../../src/core/types';
+export const section=(n:number,text=`section ${n}`):Section=>({sectionId:`sec-${n}`,path:`Sec. ${n}`,heading:'',text});
+export function amendment(amendmentId:string,operations:Operation[]|'unstructured',affectedSectionIds=['sec-1'],extra:Partial<Amendment>={}):Amendment {return {amendmentId,enactedOn:'2026-02-01',effectiveOn:'2026-03-01',instructionText:'Fictional amendment.',affectedSectionIds,operations,...extra};}
+export function packet(amendments:Amendment[]=[],sections:Section[]=[section(1,'alpha beta')]):Packet {return {schemaVersion:'s46.packet.v1',enactment:{id:'EDGE',title:'Original fictional test enactment',fictionalProvenance:{author:'builder',attestation:'Original fiction.',license:'CC0-1.0'},enactedOn:'2026-01-01',commencesOn:'2026-02-01',sunsetExclusive:null,sections,amendments}};}

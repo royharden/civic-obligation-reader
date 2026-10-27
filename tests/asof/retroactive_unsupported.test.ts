@@ -1,0 +1,5 @@
+import {it,expect} from 'vitest';
+import {asOf} from '../../src/core/asof';
+import {amendment,packet} from './helpers';
+it('RETRO-PERSIST: retroactive taint begins at effective date and never clears',()=>{const p=packet([amendment('A','unstructured',['sec-1'],{enactedOn:'2026-04-01',effectiveOn:'2026-03-01'})]);expect(asOf(p,'2026-02-28').taints).toEqual([]);for(const day of ['2026-03-01','2026-04-01','2027-01-01']){const r=asOf(p,day);expect(r.provisions[0]?.tainted).toBe('retroactive_unsupported');expect(r.unapplied[0]?.reason).toBe('retroactive_unsupported');}});
+it('RETRO-EXCLUDED-CONFLICT: retroactive target skips a same-day normal amendment',()=>{const r=asOf(packet([amendment('A','unstructured',['sec-1'],{enactedOn:'2026-04-01'}),amendment('B',[{op:'replaceText',sectionId:'sec-1',old:'alpha',new:'z'}])]),'2026-03-01');expect(r.unapplied.map(a=>a.reason)).toEqual(['retroactive_unsupported','dependency_tainted']);expect(r.provisions[0]?.tainted).toBe('retroactive_unsupported');expect(r.taints.map(t=>t.reason)).toEqual(['retroactive_unsupported']);});

@@ -1,0 +1,7 @@
+import {it,expect} from 'vitest';
+import {asOf,statePeriods} from '../../src/core/asof';
+import {amendment,packet} from './helpers';
+it('FORCE-HALF-OPEN: no provisions before commencement or on sunset',()=>{const p=packet();p.enactment.sunsetExclusive='2026-03-01';for(const day of ['2026-01-31','2026-03-01','2026-03-02']){const r=asOf(p,day);expect(r.status).toBe('not_in_force');expect(r.stateId).toBeNull();expect(r.provisions).toEqual([]);}expect(asOf(p,'2026-02-01').status).toBe('in_force');expect(asOf(p,'2026-02-28').status).toBe('in_force');});
+it('PENDING-VISIBILITY: only enacted future amendments, no state/hash effects',()=>{const p=packet([amendment('A','unstructured', ['sec-1'],{enactedOn:'2026-02-15'})]);expect(asOf(p,'2026-02-14').pending).toEqual([]);expect(asOf(p,'2026-02-15').pending.map(a=>a.amendmentId)).toEqual(['A']);expect(asOf(p,'2026-03-01').pending).toEqual([]);expect(asOf(p,'2026-02-14').stateHash).toBe(asOf(p,'2026-02-15').stateHash);});
+it('STATE-BOUNDARIES: shared commencement and failed effective dates each yield one state',()=>{const p=packet([amendment('A','unstructured',['sec-1'],{effectiveOn:'2026-02-01'}),amendment('B','unstructured',['sec-1'],{effectiveOn:'2026-03-01'})]);expect(statePeriods(p)).toEqual([{stateId:'S0',from:'2026-02-01',toExclusive:'2026-03-01'},{stateId:'S1',from:'2026-03-01',toExclusive:null}]);expect(asOf(p,'2026-03-01').stateId).toBe('S1');});
+it('INVALID-ASOF: invalid Gregorian query date rejected',()=>{expect(()=>asOf(packet(),'2026-02-30')).toThrow();});

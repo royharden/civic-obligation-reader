@@ -1,0 +1,8 @@
+import {it,expect} from 'vitest';
+import {asOf} from '../../src/core/asof';
+import {amendment,packet,section} from './helpers';
+const replace=(old:string,next:string)=>[{op:'replaceText' as const,sectionId:'sec-1',old,new:next}];
+it('CONFLICT-UNORDERED: overlap blocks both entire target sets including unstructured',()=>{const r=asOf(packet([amendment('A',replace('alpha','gamma')),amendment('B','unstructured',['sec-1','sec-2'])],[section(1,'alpha'),section(2)]),'2026-03-01');expect(r.unapplied.map(a=>a.reason)).toEqual(['amendment_conflict','amendment_conflict']);expect(r.provisions.map(s=>s.tainted)).toEqual(['amendment_conflict','amendment_conflict']);});
+it('CONFLICT-ORDER: unequal explicit orders allow sequential same-day edits',()=>{const r=asOf(packet([amendment('B',replace('gamma','delta'),['sec-1'],{order:2}),amendment('A',replace('alpha','gamma'),['sec-1'],{order:1})],[section(1,'alpha')]),'2026-03-01');expect(r.provisions[0]?.text).toBe('delta');expect(r.trace.map(t=>t.amendmentId)).toEqual(['A','B']);});
+it('CONFLICT-EQUAL-OR-PARTIAL: one missing or equal order still conflicts',()=>{for(const second of [undefined,1]){const b=amendment('B','unstructured');if(second!==undefined)b.order=second;const r=asOf(packet([amendment('A',replace('alpha','gamma'),['sec-1'],{order:1}),b]),'2026-03-01');expect(r.unapplied.every(a=>a.reason==='amendment_conflict')).toBe(true);}});
+it('CONFLICT-PAIRWISE: a chain blocks every participant',()=>{const p=packet([amendment('A','unstructured',['sec-1']),amendment('B','unstructured',['sec-1','sec-2']),amendment('C','unstructured',['sec-2'])],[section(1),section(2)]);expect(asOf(p,'2026-03-01').unapplied.map(a=>a.reason)).toEqual(['amendment_conflict','amendment_conflict','amendment_conflict']);});
