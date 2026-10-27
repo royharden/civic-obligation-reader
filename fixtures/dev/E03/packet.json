@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "s46.packet.v1",
+  "enactment": {
+    "id": "E03",
+    "title": "Marrow Creek Private Well Sampling Ordinance",
+    "fictionalProvenance": {
+      "author": "0805_Claude_Opus55_S46INT",
+      "attestation": "Original fiction written for S46; no copied text.",
+      "license": "CC0-1.0"
+    },
+    "enactedOn": "2026-04-15",
+    "commencesOn": "2026-05-01",
+    "sunsetExclusive": null,
+    "sections": [
+      { "sectionId": "sec-1", "path": "Sec. 1", "heading": "Definitions",
+        "text": "(a) In this ordinance, \"well owner\" means a person who owns land served by a private drinking water well in the County of Marrow Creek.\n(b) In this ordinance, \"certified laboratory\" means a laboratory that the Health Officer lists as one that may test drinking water." },
+      { "sectionId": "sec-2", "path": "Sec. 2", "heading": "Sampling",
+        "text": "(a) A well owner shall have the well water tested by a certified laboratory annually.\n(b) A well owner shall send each test result to the Health Officer within fourteen (14) calendar days after the laboratory issues the result.\n(c) A well owner may collect the water sample in person." },
+      { "sectionId": "sec-3", "path": "Sec. 3", "heading": "Health Officer duties",
+        "text": "(a) The Health Officer shall notify the well owner within seven (7) calendar days after a test shows unsafe nitrate levels.\n(b) The Health Officer may waive the sampling fee for a well owner who shows hardship." },
+      { "sectionId": "sec-4", "path": "Sec. 4", "heading": "Warnings",
+        "text": "(a) A well owner shall post a boil-water warning at each tap within two (2) calendar days after such notice.\n(b) Results of a retest shall be entered in the County well register." },
+      { "sectionId": "sec-5", "path": "Sec. 5", "heading": "Short title",
+        "text": "This ordinance may be cited as the Marrow Creek Private Well Sampling Ordinance." }
+    ],
+    "amendments": [
+      { "amendmentId": "A1", "enactedOn": "2026-06-30", "effectiveOn": "2026-07-01",
+        "instructionText": "After Sec. 4, add a new Sec. 6, Sampling records: \"A well owner shall keep a copy of each laboratory report at the well site.\"",
+        "affectedSectionIds": ["sec-6"],
+        "operations": [
+          { "op": "addSection", "afterSectionId": "sec-4",
+            "section": { "sectionId": "sec-6", "path": "Sec. 6", "heading": "Sampling records",
+              "text": "A well owner shall keep a copy of each laboratory report at the well site." } }
+        ] },
+      { "amendmentId": "A2", "enactedOn": "2026-09-15", "effectiveOn": "2026-08-01",
+        "instructionText": "In Sec. 3(a), strike \"seven (7)\" and insert \"five (5)\", with effect from August 1, 2026.",
+        "affectedSectionIds": ["sec-3"],
+        "operations": [
+          { "op": "replaceText", "sectionId": "sec-3", "old": "seven (7)", "new": "five (5)" }
+        ] }
+    ]
+  }
+}
