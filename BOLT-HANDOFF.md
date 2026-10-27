@@ -14,8 +14,8 @@
 | Edge functions | **Not required** | No deployed model endpoint in this MVP |
 | Storage buckets / Realtime / background jobs | Not required | No resources to provision |
 | Live providers | Local evaluation scripts only; `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `MODEL_BASE_URL` | Owner-local access pending. Never expose provider secrets with a `VITE_` prefix |
-| Evaluation admission | Independent A/R appointments, receipts and sealed files outside repo; frozen experiment and one-use edition | Pending owner gates. Builder lineage never authors hidden data |
-| Spend | USD 40 total ceiling; template dev/sealed caps both zero; integer micro-USD reservation ledger outside repo | Ceiling gives no access or permission to run now |
+| Evaluation admission | Independent A/R appointments, receipts and sealed files outside repo; measured dev pilot via `npm run eval:models -- --run-kind measured --pilot-id <unique-id>`; hash-bound selection, frozen experiment and one-use edition | Pending owner gates. Builder lineage never authors hidden data; model template remains disabled |
+| Spend | USD 40 app-lifetime ceiling; template dev/sealed caps both zero; shared append-only lifetime ledger/lock plus allocation ledgers outside repo | New pilot/experiment does not reset the ceiling. No access or permission to run now |
 | Dependencies / commands | Node >=22.6; `npm install` then commit lockfile; `npm run typecheck`, `npm run lint`, `npm test`, `npm run build` | None executed; no lockfile exists yet |
 | Acceptance | Keyless offline journey; dates/amendments/unknowns; exports; two-user RLS isolation and signed-out rejection | All runtime checks deferred; see `docs/DEFERRED-VALIDATION.md` |
 | Publication | No push, remote, import or publish authorized in this construction run | Owner action required |

@@ -43,12 +43,17 @@ The optional browser configuration names are `VITE_SUPABASE_URL` and `VITE_SUPAB
 ```sh
 npm run admit
 npm run eval -- --split dev --run-kind measured
+npm run eval:models -- --run-kind measured --pilot-id <unique-id>
 npm run eval:heldout -- --run-kind measured
 ```
 
-These commands have not been run. The dev entrypoint is deterministic code-arm evaluation. The sealed entrypoint refuses missing admission, an unfrozen/incomplete experiment, missing contested-label binding, unsupported run kind or an unaffordable full schedule before unsealing. The one-use consume marker prevents rerunning a sealed edition. Read its explicit configuration requirements before activation.
+These commands have not been run. The dev entrypoint is deterministic code-arm evaluation. The model pilot is owner-gated and refuses the current disabled configuration. After owner approval of access, literal model IDs, dated prices and affordable allocations, commit the source/configuration, then run the uniquely named dev pilot. It stores raw completions, scores and an immutable receipt under the outer shell's `eval-ledger/pilots/<unique-id>/`, outside this repository. It chooses stronger M1b by dev tuple F1 (tie to mid), and H only on qualifying dev evidence; otherwise B0.
 
-`eval/experiment.json` is deliberately unconfigured: caps zero, model IDs null, default B0. The approved USD 40 total ceiling is a ceiling only; actual spend is zero and live provider access/model approval is pending. Reservations precede dispatch; unknown usage retains the reservation. J remains not_run pending relationship disclosure. No model is called by the browser.
+Before any hidden run, copy that receipt's selection into `defaultArm`/`strongerM1b`, its source inventory into `files`, and its ID/hash into `selectionEvidence`; freeze and commit the experiment. Source, guide, dev corpus, prompts, models, prices and approval must still match. The sealed runner verifies the artifact hashes and recomputes the selection before unsealing. Changed editions need a new approved pilot. Both pilot and sealed dispatch share one app-wide lifetime reservation ledger and lock, so a new experiment does not reset the USD 40 ceiling.
+
+The sealed entrypoint refuses missing admission, an unfrozen/incomplete experiment, missing contested-label binding, unsupported run kind or an unaffordable full schedule before unsealing. The one-use consume marker prevents rerunning a sealed edition. Every scheduled M1b query has a separate consolidation outcome, including invalid, missing or screened claims; valid claims are scored independently of row validity, without repair. Read the entrypoint's explicit configuration requirements before activation.
+
+`eval/experiment.json` is deliberately unconfigured: caps zero, model IDs null, owner approval/selection evidence null, default B0. The approved USD 40 total ceiling is a ceiling only; actual spend is zero and live provider access/model approval is pending. Reservations precede dispatch; unknown usage retains the reservation. J remains not_run pending relationship disclosure. No model is called by the browser.
 
 Replay run kinds are `authored_replay` and `captured_replay`; measured reports refuse either. `fixtures/replay/authored/` contains builder boundary examples, not captured responses. No headline or numeric performance claim is available.
 
