@@ -1,4 +1,5 @@
-/** Builder-visible six-enactment regression states only. Authored, NOT executed. */
+/** @vitest-environment node */
+/** Builder-visible six-enactment regression states only. */
 import {readFileSync,readdirSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {join} from 'node:path';

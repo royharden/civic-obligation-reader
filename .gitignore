@@ -5,4 +5,5 @@ coverage/
 .env.*
 !.env.example
 results/hidden/
+results/dev/
 *.local

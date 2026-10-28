@@ -8,7 +8,7 @@ import { inventory } from '../../src/core/extract';
 import { UNKNOWN_REASONS } from '../../src/core/types';
 import { verifyModelRows } from './model-boundary';
 import { acquireRunLock } from '../lock';
-import { Ledger } from '../ledger';
+import type { Ledger } from '../ledger';
 import type { ScheduledCall } from '../ledger';
 import type { Provider, CompletionRequest, Completion } from '../providers/port';
 export interface ModelContext { provider: Provider; ledger: Ledger; bound: ScheduledCall; model: string | null; prompt: string; runKind: RunKind; lockPath: string; lockHeld?:boolean; recordCompletion?:(response:Completion)=>void }

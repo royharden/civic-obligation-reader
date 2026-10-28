@@ -1,6 +1,6 @@
 import type { Field, Packet, Reason, Resolution, Span } from './types';
 import type { ActionValue, ObligationRow } from './row';
-import { EXTRACTOR_EDITION, NORMALIZER_EDITION, headVerbOf, known, normKey, unknown } from './row';
+import { EXTRACTOR_EDITION, NORMALIZER_EDITION, headVerbOf, known, unknown } from './row';
 import { asOf } from './asof';
 import { clauses } from './clauses';
 import { candidate } from './candidates';
