@@ -1,5 +1,7 @@
 # Deferred validation
 
+**Current RAM hold from Roy:** no Docker or installs now; finish the handoff and stop until Roy relaunches the integrator. No checks below were rerun during this documentation closeout. The Round 2 results remain valid observations of that earlier work; its install/runtime permission does not override this newer hold. Exact later commands and unresolved target/credential questions: [RESUME-AFTER-RAM-HOLD.md](RESUME-AFTER-RAM-HOLD.md).
+
 ## Round 2 local validation - 2026-10-27
 
 Round 2 authorizes local dependency installation with scripts disabled, typecheck, tests and a localhost-only browser journey. **Dirty Mode remains OPEN with D7 relaxed for these checks.** This checkpoint supersedes the historical deferrals below. Their earlier statements that nothing ran and no lockfile exists describe the construction checkpoint only.

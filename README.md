@@ -23,7 +23,9 @@ The preregistered, unmeasured comparison asks whether the default pipeline achie
 
 G1 is pending Roy-appointed independent hidden author A and blind relabeller R. The original Claude builder and both Codex builders, including their children and forks, belong to the excluded cumulative builder lineage. The builder never authors hidden data or admission receipts. Held-out data and ledgers stay outside this repository.
 
-## Local use under bounded local-validation authorization
+## Local use after Roy's relaunch
+
+The current agent run is stopped for RAM. Do not start Docker or install dependencies now. The commands below are for a later authorized environment; see the [RAM-hold handoff](docs/RESUME-AFTER-RAM-HOLD.md).
 
 ```sh
 npm ci --ignore-scripts --no-audit --no-fund
@@ -34,7 +36,7 @@ npm run build
 npm run dev -- --host 127.0.0.1 --port <claimed-local-port>
 ```
 
-Node >=22.6 is required. The lockfile is supplied. Round 2 permits local installation and validation while Dirty Mode stays open; check free RAM exceeds 3 GiB before installation. Claim the port under the project resource policy before starting a server. Missing remote configuration gives keyless local mode. Block network requests during the offline browser journey. Source is rendered as React text nodes.
+Node >=22.6 is required. The lockfile is supplied. Earlier Round 2 checks ran under a local-validation exception; the current RAM hold supersedes that permission for new operations. After relaunch, check free RAM exceeds 3 GiB before an authorized installation. Claim the port under the project resource policy before starting a server. Missing remote configuration gives keyless local mode. Block network requests during the offline browser journey. Source is rendered as React text nodes.
 
 The optional browser configuration names are `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. Provider access belongs only in the local evaluator environment under `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` and `MODEL_BASE_URL`, never a public browser prefix. No provider access is supplied in this repository. See [Bolt activation handoff](BOLT-HANDOFF.md); importing or provisioning is not authorized in this run.
 
