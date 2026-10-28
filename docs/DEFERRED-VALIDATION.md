@@ -1,5 +1,40 @@
 # Deferred validation
 
+## Round 2 local validation - 2026-10-27
+
+Round 2 authorizes local dependency installation with scripts disabled, typecheck, tests and a localhost-only browser journey. **Dirty Mode remains OPEN with D7 relaxed for these checks.** This checkpoint supersedes the historical deferrals below. Their earlier statements that nothing ran and no lockfile exists describe the construction checkpoint only.
+
+| Check | Current evidence |
+|---|---|
+| Dependencies | PASS: npm install --ignore-scripts --no-audit --no-fund; 311 packages; lockfile generated; preinstall RAM 5.57 GiB. npm ls typescript typescript-eslint eslint passed exact pins without peer warnings. |
+| Typecheck | Final npm run typecheck PASS; agentops/round2-complete-typecheck.log. |
+| Lint | Initial two import errors fixed; final npm run lint PASS; agentops/round2-complete-lint.log. |
+| Build | Final npm run build PASS, 154 modules; agentops/round2-complete-build.log. |
+| Tests | Final npm test -- --maxWorkers=1 --minWorkers=1 PASS: 34 files / 301 tests, 119.23s. Exact outer log agentops/round2-complete-tests.log. Earlier failures and the 212/281-test checkpoints remain preserved as history; this final run includes the No-subject followup and all three builder roots. |
+| DEV author kit | PASS 26/26: six fixtures, 343 gold lines, 45 queries, 132 manifest hashes and guide hash, 12 negative cases, two actor controls, X01 guide example and its 11 dates. Outer receipt agentops/round2-kit-validation.md. |
+| DEV schemas | PASS offline Python jsonschema 4.26.0: both Draft 2020-12 schemas and all six packets / 343 dev gold lines; remote schema retrieval/socket access blocked. Receipt agentops/round2-schema-validation.md. |
+| Synthetic admission | PASS 16/16 in disposable outer scratch: BOM, invalid/valid check objects, missing ancestry PENDING and proven excluded lineage final NO-GO findings. Receipts deliberately incomplete, so not sole-cause NO-GO or real admission. Receipt agentops/round2-admission-validation.md. |
+| DEV evaluation | npm run eval -- --split dev --run-kind measured PASS, deterministic code arms only against builder-authored expectations. No model or headline comparison. Final v2 artifacts retained in outer agentops/round2-dev-eval-final/measured and ignored local results/dev/measured; the earlier outer round2-dev-eval/measured checkpoint is historical. |
+| Local browser | Bounded E01 journey PASS on loopback port 23200: amendment 30 to 45 days, Unapplied A1, event April 1 -> due May 16, source selection, local ruling confirmed then stale after event/definition changes, two-date changed/unchanged rows, three export blobs, notice and keyless local mode. Network route blocks requests after initial local asset load; observed traffic localhost/data only. Screenshot inspected, browser errors empty. Blob sizes/types checked; browser file-content parse not claimed. Final 10-assertion scripted replay PASS on the final source; agentops/round2-browser-complete.log and round2-browser-checks.ps1, screenshot round2-browser-v2.png. Earlier receipt agentops/round2-browser-validation.md is historical. |
+
+Current parser source commit: 5ece9b5. Cumulative admission roots: 0805, 0914 and 0950; independently reviewed 45-test identity suite and current three-root synthetic replay PASS.
+
+Parent observations and exact commands: outer agentops/round2-runtime-observations.md. High source review of runtime fixes: agentops/reviews/ROUND2-runtime-fixes.md. Author-kit/schema/admission checks executed by 0954; type/lint/build/tests/eval/browser by parent 0950.
+
+### Remaining limits and gates
+
+- Database two-user RLS, email auth and live remote-error checks need a supplied approved isolated target/access. No remote readiness is established.
+- Live model pilot and sealed comparison remain not_run. Missing access/configuration uses the explicit marker inventory in [ACTIVATION-PLACEHOLDERS.md](ACTIVATION-PLACEHOLDERS.md); experiment caps stay zero, model/approval/selection values unset. Testing lifetime ceiling USD40; spent USD0.
+- Builder lineage cannot be A/R stand-ins. No outside stand-in or human was appointed; independence PENDING Roy. No real hidden/admission data was read or authored.
+- Additional npm validator install precheck found 1.86 GiB RAM, below 3 GiB; installation aborted BEFORE mutation. Already-installed Python validator closed the schema gap without an install.
+- Guide/extractor source audit completed with bounded fixes for fronted/relative/appositive/No actors, passive put and deadline precedence, independently reviewed through xhigh. Review receipts: agentops/reviews/ROUND2-guide-fixes-r3-xhigh.md and ROUND2-No-followup-xhigh.md. All five apply/comply/supply/reply/rely verbs pass. This is not complete unrestricted English conformance: general thing-role classification and hyphenated re-inspect -> re remain documented boundaries. The frozen guide/fixtures were not changed; extractor edition advanced to v2.
+- No credentials read, live providers called, accounts created, spending, push, remote, publication, deployment or public license adoption occurred.
+- Remaining historical checks not covered by a PASS above are still unverified. Local validation authorization is not evidence that every procedure below has run.
+
+## Historical source-only deferrals
+
+# Deferred validation
+
 This run is a Dirty Mode construction run: only static checks were allowed (reading files, `git` read commands,
 `sha256sum`, `node --check` on erasable TypeScript, and inline read-only `node -e` one-liners that import no repository
 file). Everything below is **not yet done**. Each row gives the exact command to run later. Nothing listed here has
