@@ -7,3 +7,12 @@ coverage/
 results/hidden/
 results/dev/
 *.local
+
+# Local credentials, archives and generated files must stay out of version control.
+.creds/
+ArchiveManager-creds.txt
+*.pem
+*.key
+*.p12
+*.pfx
+*.zip
