@@ -6,11 +6,33 @@ import { isPassivePredicate } from './candidates';
 import { definitions } from './depgraph';
 import { known, normKey, unknown } from './row';
 export interface ActorParse {field:Field<ActorValue>;definitionSectionId?:string}
+/** Bounded syntax cues for fronted circumstances, not a semantic noun/role classifier. */
+function frontedSubjectStart(prefix:string):number{
+ // Phrase markers take a following word, rather than the rest of a hyphenated role head.
+ const circumstance=/^\s*(?:(?:about|above|across|after|against|along|amid|among|around|at|before|behind|below|beneath|beside|between|beyond|by|despite|during|except|for|from|if|in|inside|instead of|not later than|on|once|outside|over|prior to|since|subject to|through|throughout|to|toward|under|unless|until|upon|when|where|whereas|while|within|without|with|having)(?=\s)|(?:accordingly|therefore)(?=\s|,))/i;
+ // Having inside an explicit subject relative cannot make that subject a fronted absolute.
+ const absolute=/^\s*(?:a|an|the|each|every|any|all|no|such)\b(?:(?!\b(?:who|that|which)\b)[^,])*\bhaving\b/i;
+ const monthDay=/\b(?:January|February|March|April|May|June|July|August|September|October|November|December) [0-9]{1,2}$/i;
+ let start=0;
+ while(circumstance.test(prefix.slice(start))||absolute.test(prefix.slice(start))){
+  const rest=prefix.slice(start);
+  // The date's comma belongs to its phrase; only its following separator can end fronting.
+  const separator=[...rest.matchAll(/,/g)].find(m=>!(monthDay.test(rest.slice(0,m.index))&&/^\s*[0-9]{4}(?:\s*,|\s*$)/.test(rest.slice(m.index+1))));
+  if(!separator)break;
+  start+=separator.index+1;
+ }
+ return start;
+}
 /** Subject NP after any fronted comma phrase. Coordinated subject carry-over is explicit. */
 export function actor(clause:Clause,trigger:Trigger,resolution:Resolution,packet:Packet,previous?:ActorParse):ActorParse{
  const localEnd=trigger.localStart;let prefix=clause.text.slice(0,localEnd),start=0;
  if(/(?:^|\s)and\s*$/i.test(prefix)&&previous)return previous;
- const comma=prefix.lastIndexOf(',');if(comma>=0&&/^(?:Except|Subject to|Within|Not later than|On or before|Before|By|If|Unless|When)\b/i.test(prefix)){start=comma+1;prefix=prefix.slice(start);}else if(comma>=0)prefix=prefix.slice(0,prefix.indexOf(','));
+ // No-subject trigger text includes the subject; apply the same NP boundaries to it.
+ if(trigger.text.toLowerCase().startsWith('no ')){const no=/^No\s+(.+?)\s+(?:shall|may|must)$/i.exec(trigger.text);if(no){prefix=no[1]!;start=trigger.localStart+trigger.text.indexOf(prefix);}}
+ // Once a nominal subject starts, a determiner-led appositive never replaces it.
+ const subjectStart=frontedSubjectStart(prefix);
+ start+=subjectStart;prefix=prefix.slice(subjectStart);
+ const comma=prefix.indexOf(',');if(comma>=0&&!/^\s*(?:and|or)\b/i.test(prefix.slice(comma+1)))prefix=prefix.slice(0,comma);
  // A distinct second subject after '; and' starts at the coordination boundary.
  const coordination=prefix.lastIndexOf('; and ');if(coordination>=0){start+=coordination+6;prefix=prefix.slice(coordination+6);}
  const relative=/\s+(?:who|that|which)\b/i.exec(prefix);if(relative)prefix=prefix.slice(0,relative.index);
@@ -20,7 +42,6 @@ export function actor(clause:Clause,trigger:Trigger,resolution:Resolution,packet
   if(!agent||/^(?:[0-9]|January|February|March|April|May|June|July|August|September|October|November|December)\b/.test(agent[1]!))return {field:unknown('actor_unstated')};
   prefix=agent[1]!.trimEnd();start=trigger.localEnd+agent.index+agent[0].indexOf(agent[1]!);
  }
- if(trigger.text.toLowerCase().startsWith('no ')){const no=/^No\s+(.+?)\s+(?:shall|may|must)$/i.exec(trigger.text);if(no){prefix=no[1]!;start=trigger.localStart+trigger.text.indexOf(prefix);}}
  if(!prefix)return {field:unknown('actor_unstated')};
  if(/\b(?:and|or)\b/i.test(prefix)||/^(?:Each|Either|It|They|Such person|The same)$/i.test(prefix))return {field:unknown('actor_ambiguous')};
  const span:Span=[clause.span[0]+start,clause.span[0]+start+prefix.length],subject=normKey(prefix).replace(/^(?:each|every|any|all|no|such) /,'');

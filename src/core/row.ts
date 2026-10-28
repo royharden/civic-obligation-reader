@@ -14,7 +14,7 @@ export interface ObligationRow {
  actor:Field<ActorValue>;modality:Field<Modality>;action:Field<ActionValue>;object?:Field<string>;deadline:Field<DeadlineValue>;conditions:string[];exceptions:string[];evidence:Evidence;review:Review;unknowns:Reason[];runKind:RunKind;arm:string;
 }
 export type Row = ObligationRow;
-export const EXTRACTOR_EDITION='s46-extractor-v1';
+export const EXTRACTOR_EDITION='s46-extractor-v2';
 export const NORMALIZER_EDITION='s46-normalizer-v1';
 export function known<T>(value:T,evidenceSpan:Span):Field<T>{return {known:value,evidenceSpan};}
 export function unknown<T>(reason:Reason):Field<T>{return {unknown:reason};}
