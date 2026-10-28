@@ -9,7 +9,7 @@ measured; do not report or imply any result.
 
 - Appointed by **Roy**. Distinct from author A (neither the same agent nor an ancestor/descendant through parent or fork
   links) and outside the cumulative builder lineage: predecessor `0805_Claude_Opus55_S46INT`, successor
-  `0914_Codex_GPT-6_N20CodexInt46`, and all parent/fork descendants of either root. Succession adds roots; it never removes
+  `0914_Codex_GPT-6_N20CodexInt46`, resumed builder `0950_Codex_gpt-6_N20CodexInt46`, and all parent/fork descendants of any root. Succession adds roots; it never removes
   an earlier builder. R may use any harness, including a builder harness, if its exact registry identity proves independence.
 - Missing roots/ancestors, missing lineage columns, cycles or exhausted traversal leave eligibility **PENDING**. A callsign
   or `noBuilderLineage` attestation alone cannot establish independence.

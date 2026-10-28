@@ -85,6 +85,7 @@ const ALLOWED_RECEIPTS = new Set<string>(RECEIPT_NAMES.map((f) => join(ADMISSION
 export const BUILDER_ROOTS = [
   { id: "0805", name: "0805_Claude_Opus55_S46INT", harness: "Claude" },
   { id: "0914", name: "0914_Codex_GPT-6_N20CodexInt46", harness: "Codex" },
+  { id: "0950", name: "0950_Codex_gpt-6_N20CodexInt46", harness: "Codex" },
 ] as const;
 const GUIDE_PATH = "docs/LABELLING-GUIDE.md";
 const MANIFEST_PATH = "fixtures/MANIFEST.json";

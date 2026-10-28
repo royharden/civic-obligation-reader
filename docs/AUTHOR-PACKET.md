@@ -7,8 +7,8 @@ sees it before a frozen, one-time evaluation. Nothing has been run or measured; 
 ## 1. Who may be A
 
 - Appointed by **Roy** (owner). The project's plan does not appoint anyone, including its planning agents.
-- **Outside the cumulative builder lineage**: neither predecessor `0805_Claude_Opus55_S46INT` nor successor
-  `0914_Codex_GPT-6_N20CodexInt46`, nor any descendant through parent or fork links of either root. Succession adds roots;
+- **Outside the cumulative builder lineage**: neither predecessor `0805_Claude_Opus55_S46INT`, successor
+  `0914_Codex_GPT-6_N20CodexInt46`, nor resumed builder `0950_Codex_gpt-6_N20CodexInt46`, nor any descendant through parent or fork links of any root. Succession adds roots;
   it never removes an earlier builder.
 - **Different harness from every builder root.** The exact registry roots currently use `Claude` and `Codex`, so A uses
   another harness (for example Grok, Cursor or Antigravity). A fresh Claude or Codex session is still ineligible as A.

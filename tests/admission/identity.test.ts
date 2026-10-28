@@ -1,5 +1,5 @@
 // @vitest-environment node
-// Authored, not executed: M1-r2 B1 regression coverage. Synthetic registry data only.
+// Cumulative builder-root regression coverage. Synthetic registry data only.
 import { describe, expect, it } from "vitest";
 import { BUILDER_ROOTS, ancestry, identityAssessment, parseRegistry, relationship, resolveBuilders } from "../../tools/admit";
 import type { Agent, Registry } from "../../tools/admit";
@@ -18,11 +18,12 @@ function assess(a: Agent, who: "author A" | "relabeller R" = "author A", extra: 
 const finalFailure = (findings: ReturnType<typeof assess>): boolean => findings.some((f) => f.status === "FAIL" && f.severity === "final");
 const pending = (findings: ReturnType<typeof assess>): boolean => findings.some((f) => f.status === "PENDING");
 
-describe("M1 B1 cumulative builder exclusion (authored, not executed)", () => {
-  it("what_bug_this_catches: succession must retain both exact roots", () => {
+describe("M1 B1 cumulative builder exclusion", () => {
+  it("what_bug_this_catches: succession must retain every exact root, including the resumed builder", () => {
     expect(BUILDER_ROOTS).toEqual([
       { id: "0805", name: "0805_Claude_Opus55_S46INT", harness: "Claude" },
       { id: "0914", name: "0914_Codex_GPT-6_N20CodexInt46", harness: "Codex" },
+      { id: "0950", name: "0950_Codex_gpt-6_N20CodexInt46", harness: "Codex" },
     ]);
   });
   for (const root of roots) {
@@ -35,6 +36,7 @@ describe("M1 B1 cumulative builder exclusion (authored, not executed)", () => {
         it(`what_bug_this_catches: ${who} cannot be a ${edge} descendant of ${root.id}`, () => {
           const child = actor("4000", "Grok", edge === "parent" ? root.id : "", edge === "fork" ? root.id : "");
           const grandchild = actor("4001", "Cursor", child.id);
+          expect(finalFailure(assess(child, who))).toBe(true);
           expect(finalFailure(assess(grandchild, who, [child]))).toBe(true);
         });
       }
@@ -49,6 +51,9 @@ describe("M1 B1 cumulative builder exclusion (authored, not executed)", () => {
   it("what_bug_this_catches: proven independent third-harness A remains eligible", () => {
     expect(assess(actor()).every((f) => f.status === "PASS")).toBe(true);
   });
+  it("what_bug_this_catches: a genuinely unrelated R on a third harness remains eligible", () => {
+    expect(assess(actor("4000", "Cursor"), "relabeller R").every((f) => f.status === "PASS")).toBe(true);
+  });
   it("what_bug_this_catches: A/R same identity and ancestry in either direction remain related", () => {
     const a = actor();
     const r = actor("4001", "Cursor", "", a.id);
@@ -59,7 +64,7 @@ describe("M1 B1 cumulative builder exclusion (authored, not executed)", () => {
   });
 });
 
-describe("M1 B1 unresolved evidence (authored, not executed)", () => {
+describe("M1 B1 unresolved evidence", () => {
   const header = "id,name,harness,parent_id,forked_from";
   it("what_bug_this_catches: complete registry rows with explicit empty lineage cells are usable", () => {
     const csv = [header, ...roots.map((root) => `${root.id},${root.name},${root.harness},,`), "4000,synthetic-4000,Grok,,"].join("\n");
@@ -86,20 +91,28 @@ describe("M1 B1 unresolved evidence (authored, not executed)", () => {
       expect(result.problem).toBeTruthy();
     });
   }
-  for (const index of [0, 1]) {
+  for (const index of roots.map((_, index) => index)) {
     it(`what_bug_this_catches: missing builder root ${index} is never inferred from its callsign`, () => {
       const remaining = roots.filter((_, i) => i !== index);
       const reg = registry([], remaining);
       const resolved = resolveBuilders(reg);
       expect(resolved.problems).toHaveLength(1);
-      expect(pending(identityAssessment(actor().name, "Grok", "author A", registry([actor()], remaining), resolved.builders).findings)).toBe(true);
+      for (const who of ["author A", "relabeller R"] as const) {
+        expect(pending(identityAssessment(actor().name, "Grok", who, registry([actor()], remaining), resolved.builders).findings)).toBe(true);
+      }
     });
   }
-  it("what_bug_this_catches: a root with mismatched name or harness cannot be trusted", () => {
-    for (const replacement of [{ ...roots[0]!, name: "different-name" }, { ...roots[0]!, harness: "Cursor" }]) {
-      expect(resolveBuilders(registry([], [replacement, roots[1]!])).problems).toHaveLength(1);
-    }
-  });
+  for (const index of roots.map((_, index) => index)) {
+    it(`what_bug_this_catches: builder root ${index} with mismatched name or harness cannot be trusted`, () => {
+      for (const replacement of [{ ...roots[index]!, name: "different-name" }, { ...roots[index]!, harness: "Cursor" }]) {
+        const replacedRoots = roots.map((root, position) => position === index ? replacement : root);
+        const reg = registry([actor()], replacedRoots);
+        const resolved = resolveBuilders(reg);
+        expect(resolved.problems).toHaveLength(1);
+        expect(pending(identityAssessment(actor().name, "Grok", "author A", reg, resolved.builders).findings)).toBe(true);
+      }
+    });
+  }
   it("what_bug_this_catches: unavailable registry or missing actor yields PENDING", () => {
     expect(pending(identityAssessment("absent", "Grok", "author A", registry(), roots).findings)).toBe(true);
     expect(pending(identityAssessment("absent", "Grok", "author A", null, []).findings)).toBe(true);
@@ -108,7 +121,7 @@ describe("M1 B1 unresolved evidence (authored, not executed)", () => {
     const a = actor("4000", "Grok", "4999");
     expect(pending(assess(a))).toBe(true);
     expect(relationship(registry([a]), a, roots[0]!.id)).toBe("unresolved");
-    expect(resolveBuilders(registry([], [{ ...roots[0]!, parentId: "4999" }, roots[1]!])).problems).toHaveLength(1);
+    expect(resolveBuilders(registry([], roots.map((root, index) => index === 0 ? { ...root, parentId: "4999" } : root))).problems).toHaveLength(1);
   });
   it("what_bug_this_catches: a parent/fork cycle cannot prove independence", () => {
     const a = actor("4000", "Grok", "4001");
@@ -122,10 +135,14 @@ describe("M1 B1 unresolved evidence (authored, not executed)", () => {
     expect(pending(assess(a, "author A", chain.slice(1)))).toBe(true);
     expect(ancestry(registry(chain), a).problem).toContain("limit");
   });
-  it("what_bug_this_catches: known builder ancestry is final even with an unresolved second branch", () => {
-    const a = actor("4000", "Grok", roots[1]!.id, "4999");
-    const findings = assess(a);
-    expect(finalFailure(findings)).toBe(true);
-    expect(pending(findings)).toBe(true);
-  });
+  for (const root of roots) {
+    it(`what_bug_this_catches: known ancestry to ${root.id} is final even with an unresolved second branch`, () => {
+      const a = actor("4000", "Grok", root.id, "4999");
+      for (const who of ["author A", "relabeller R"] as const) {
+        const findings = assess(a, who);
+        expect(finalFailure(findings)).toBe(true);
+        expect(pending(findings)).toBe(true);
+      }
+    });
+  }
 });
