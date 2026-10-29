@@ -1,0 +1,2 @@
+import type { Packet } from '../../src/core/types';
+export function packet(text:string,extras:{sectionId:string;text:string}[]=[]):Packet{return {schemaVersion:'s46.packet.v1',enactment:{id:'X01',title:'Original fictional test ordinance',fictionalProvenance:{author:'test-builder',attestation:'Original fiction',license:'CC0-1.0'},enactedOn:'2026-01-01',commencesOn:'2026-02-01',sunsetExclusive:null,sections:[{sectionId:'sec-1',path:'Sec. 1',heading:'Duties',text},...extras.map(s=>({...s,path:s.sectionId.replace('sec-','Sec. '),heading:'Other'}))],amendments:[]}};}

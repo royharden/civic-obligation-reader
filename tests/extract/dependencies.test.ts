@@ -1,0 +1,14 @@
+import { it,expect } from 'vitest';
+import { extract } from '../../src/core/extract';
+import { packet } from './fixtures';
+const date='2026-04-01';
+it('field-local reference errors distinguish missing, repealed, deep and tainted dependencies',()=>{ // what_bug_this_catches: clause exception hidden by none-stated full-clause evidence or unknown IDs called repealed.
+ const missing=packet('Except as provided in Sec. 9, a vendor shall file a form.');expect(extract(missing,date)[0]!.modality).toEqual({unknown:'crossref_unresolved'});
+ const future=packet('Except as provided in Sec. 9, a vendor shall file a form.');future.enactment.amendments.push({amendmentId:'A1',enactedOn:'2026-04-01',effectiveOn:'2026-05-01',instructionText:'Add',affectedSectionIds:['sec-9'],operations:[{op:'addSection',afterSectionId:'sec-1',section:{sectionId:'sec-9',path:'Sec. 9',heading:'Exemption',text:'A school is exempt.'}}]});expect(extract(future,date)[0]!.modality).toEqual({unknown:'crossref_unresolved'});
+ const repealed=packet('Except as provided in Sec. 2, a vendor shall file a form.',[{sectionId:'sec-2',text:'Schools are exempt.'}]);repealed.enactment.amendments.push({amendmentId:'A1',enactedOn:'2026-03-01',effectiveOn:date,instructionText:'Repeal',affectedSectionIds:['sec-2'],operations:[{op:'repealSection',sectionId:'sec-2'}]});expect(extract(repealed,date)[0]!.modality).toEqual({unknown:'crossref_repealed'});
+ const deep=packet('Except as provided in Sec. 2, a vendor shall file a form.',[{sectionId:'sec-2',text:'The exemption is under Sec. 3.'},{sectionId:'sec-3',text:'Schools are exempt.'}]);expect(extract(deep,date)[0]!.modality).toEqual({unknown:'reference_depth'});
+ const tainted=packet('A vendor shall hold a permit.',[{sectionId:'sec-2',text:'"vendor" means a cart operator.'}]);tainted.enactment.amendments.push({amendmentId:'A1',enactedOn:'2026-03-01',effectiveOn:date,instructionText:'Unstructured',affectedSectionIds:['sec-2'],operations:'unstructured'});expect(extract(tainted,date)[0]!.actor).toEqual({unknown:'dependency_tainted'});expect(extract(tainted,date)[0]!.evidence.version).toBe('unknown');
+});
+it('a removed definition yields actor_undefined and joint subjects actor_ambiguous',()=>{ // what_bug_this_catches: a formerly-defined term stays known after its definition disappears.
+ const p=packet('A vendor shall hold a permit.',[{sectionId:'sec-2',text:'"vendor" means a cart operator.'}]);p.enactment.amendments.push({amendmentId:'A1',enactedOn:'2026-03-01',effectiveOn:date,instructionText:'Repeal',affectedSectionIds:['sec-2'],operations:[{op:'repealSection',sectionId:'sec-2'}]});expect(extract(p,date)[0]!.actor).toEqual({unknown:'actor_undefined'});expect(extract(packet('The vendor and the Clerk shall sign a form.'),date)[0]!.actor).toEqual({unknown:'actor_ambiguous'});
+});

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "s46.packet.v1",
+  "enactment": {
+    "id": "E02",
+    "title": "Fenwick Hollow Book Kiosk Ordinance",
+    "fictionalProvenance": {
+      "author": "0805_Claude_Opus55_S46INT",
+      "attestation": "Original fiction written for S46; no copied text.",
+      "license": "CC0-1.0"
+    },
+    "enactedOn": "2026-03-10",
+    "commencesOn": "2026-04-01",
+    "sunsetExclusive": "2027-04-01",
+    "sections": [
+      { "sectionId": "sec-1", "path": "Sec. 1", "heading": "Definitions",
+        "text": "In this ordinance, \"kiosk operator\" means a person who holds a licence to run a self-service book kiosk in the Village of Fenwick Hollow." },
+      { "sectionId": "sec-2", "path": "Sec. 2", "heading": "Purpose",
+        "text": "The purpose of this ordinance is to set fair rules for self-service book kiosks so that residents may borrow books close to home." },
+      { "sectionId": "sec-3", "path": "Sec. 3", "heading": "Operator duties",
+        "text": "(a) Except as provided in Sec. 5, a kiosk operator shall keep the kiosk stocked with at least fifty books.\n(b) A kiosk operator shall report a damaged kiosk to the Library Board within five (5) calendar days after the damage is found.\n(c) A kiosk operator may not charge a fee for borrowing a book." },
+      { "sectionId": "sec-4", "path": "Sec. 4", "heading": "Library Board duties",
+        "text": "(a) Except as provided in Sec. 6, the Library Board shall inspect each kiosk on or before December 1, 2026.\n(b) The Library Board shall publish a list of kiosk locations on the Village website." },
+      { "sectionId": "sec-5", "path": "Sec. 5", "heading": "School kiosks",
+        "text": "A kiosk placed inside a school building is exempt from the stocking rule." },
+      { "sectionId": "sec-6", "path": "Sec. 6", "heading": "Inspection exemptions",
+        "text": "(a) A kiosk run by a school is exempt from inspection fees." },
+      { "sectionId": "sec-7", "path": "Sec. 7", "heading": "Short title",
+        "text": "This ordinance may be cited as the Fenwick Hollow Book Kiosk Ordinance." }
+    ],
+    "amendments": [
+      { "amendmentId": "A1", "enactedOn": "2026-06-30", "effectiveOn": "2026-07-01",
+        "instructionText": "In Sec. 6, after subsection (a) insert a new subsection (b): \"The Library Board need not inspect a kiosk that is housed inside the Village Hall.\"",
+        "affectedSectionIds": ["sec-6"],
+        "operations": [
+          { "op": "insertAfter", "sectionId": "sec-6", "anchor": "exempt from inspection fees.",
+            "text": "\n(b) The Library Board need not inspect a kiosk that is housed inside the Village Hall.",
+            "preimageSha256": "f45da25176e3f2f80e7ebb304d2be2f99c3f5b4e0c578c51e7f9bf2a147afbe5" }
+        ] },
+      { "amendmentId": "A2", "enactedOn": "2026-09-30", "effectiveOn": "2026-10-01",
+        "instructionText": "Sec. 5 is repealed.",
+        "affectedSectionIds": ["sec-5"],
+        "operations": [
+          { "op": "repealSection", "sectionId": "sec-5",
+            "preimageSha256": "cb6e12579ce49a44f57c32b176a70e2f69d947b1b05f7d1e3523cdefbcf28a8f" }
+        ] }
+    ]
+  }
+}

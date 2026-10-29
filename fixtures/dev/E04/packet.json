@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "s46.packet.v1",
+  "enactment": {
+    "id": "E04",
+    "title": "Ashgrove Park Event Permit Ordinance",
+    "fictionalProvenance": {
+      "author": "0805_Claude_Opus55_S46INT",
+      "attestation": "Original fiction written for S46; no copied text.",
+      "license": "CC0-1.0"
+    },
+    "enactedOn": "2026-05-04",
+    "commencesOn": "2026-06-01",
+    "sunsetExclusive": "2027-06-01",
+    "sections": [
+      { "sectionId": "sec-1", "path": "Sec. 1", "heading": "Definitions",
+        "text": "In this ordinance, \"permit holder\" means a person named on a park event permit issued by the Parks Director of the City of Ashgrove." },
+      { "sectionId": "sec-2", "path": "Sec. 2", "heading": "Applications",
+        "text": "(a) An applicant shall submit a park event application not later than March 15, 2027.\n(b) The Parks Director shall decide each application within twenty-one (21) calendar days after the application is received." },
+      { "sectionId": "sec-3", "path": "Sec. 3", "heading": "Event conduct",
+        "text": "(a) A permit holder shall post the permit at the event entrance and shall keep a copy at the first aid tent.\n(b) A permit holder shall remove all litter from the park within two (2) calendar days after the event ends.\n(c) A permit holder may not use amplified sound inside a nature reserve." },
+      { "sectionId": "sec-4", "path": "Sec. 4", "heading": "Fees",
+        "text": "(a) A permit holder shall pay the event fee before the event begins.\n(b) A permit holder is not required to pay a fee for an event with fewer than twenty guests." },
+      { "sectionId": "sec-5", "path": "Sec. 5", "heading": "Closing",
+        "text": "(a) The Parks Director shall lock the park gates at closing time." },
+      { "sectionId": "sec-6", "path": "Sec. 6", "heading": "Short title",
+        "text": "This ordinance may be cited as the Ashgrove Park Event Permit Ordinance." }
+    ],
+    "amendments": [
+      { "amendmentId": "A1", "enactedOn": "2026-07-31", "effectiveOn": "2026-08-01",
+        "instructionText": "In Sec. 3(b), strike \"two (2)\" and insert \"three (3)\".",
+        "affectedSectionIds": ["sec-3"],
+        "operations": [
+          { "op": "replaceText", "sectionId": "sec-3", "old": "two (2)", "new": "three (3)" }
+        ] },
+      { "amendmentId": "A2", "enactedOn": "2026-07-31", "effectiveOn": "2026-08-01",
+        "instructionText": "In Sec. 3(c), after \"inside a nature reserve\" insert \"or a playground\".",
+        "affectedSectionIds": ["sec-3"],
+        "operations": [
+          { "op": "replaceText", "sectionId": "sec-3", "old": "inside a nature reserve", "new": "inside a nature reserve or a playground" }
+        ] },
+      { "amendmentId": "A3", "enactedOn": "2026-10-31", "effectiveOn": "2026-11-01",
+        "instructionText": "In Sec. 3(a), strike \"at the event entrance\" and insert \"at the main event entrance\". In Sec. 5(a), strike \"at closing time\" and insert \"at the posted closing time\".",
+        "affectedSectionIds": ["sec-3", "sec-5"],
+        "operations": [
+          { "op": "replaceText", "sectionId": "sec-3", "old": "at the event entrance", "new": "at the main event entrance" },
+          { "op": "replaceText", "sectionId": "sec-5", "old": "at closing time", "new": "at the posted closing time" }
+        ] }
+    ]
+  }
+}

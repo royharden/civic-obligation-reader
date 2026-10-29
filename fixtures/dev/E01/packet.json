@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "s46.packet.v1",
+  "enactment": {
+    "id": "E01",
+    "title": "Larkspur Bend Mobile Food Vendor Ordinance",
+    "fictionalProvenance": {
+      "author": "0805_Claude_Opus55_S46INT",
+      "attestation": "Original fiction written for S46; no copied text.",
+      "license": "CC0-1.0"
+    },
+    "enactedOn": "2026-01-12",
+    "commencesOn": "2026-02-01",
+    "sunsetExclusive": null,
+    "sections": [
+      { "sectionId": "sec-1", "path": "Sec. 1", "heading": "Definitions",
+        "text": "In this ordinance, \"vendor\" means a person who sells prepared food from a mobile food cart inside the Town of Larkspur Bend." },
+      { "sectionId": "sec-2", "path": "Sec. 2", "heading": "Permits",
+        "text": "(a) A vendor shall hold a mobile vending permit from the Town Clerk.\n(b) A vendor may not sell food from a cart parked inside Heron Green Park." },
+      { "sectionId": "sec-3", "path": "Sec. 3", "heading": "Renewal",
+        "text": "(a) A vendor shall renew the mobile vending permit within thirty (30) calendar days after the vendor receives a renewal notice.\n(b) Renewal applications shall be filed with the Town Clerk.\n(c) A vendor need not renew a permit that the vendor has surrendered." },
+      { "sectionId": "sec-4", "path": "Sec. 4", "heading": "Inspections",
+        "text": "(a) A vendor shall present the cart for a fire safety inspection within ten (10) calendar days after the Fire Marshal requests an inspection.\n(b) The Fire Marshal shall post each inspection result on the Town notice board." },
+      { "sectionId": "sec-5", "path": "Sec. 5", "heading": "Noise",
+        "text": "(a) No vendor shall run a generator inside a residential block.\n(b) A vendor may play recorded music at a low volume." },
+      { "sectionId": "sec-6", "path": "Sec. 6", "heading": "Short title",
+        "text": "This ordinance may be cited as the Larkspur Bend Mobile Food Vendor Ordinance." }
+    ],
+    "amendments": [
+      { "amendmentId": "A1", "enactedOn": "2026-03-01", "effectiveOn": "2026-04-01",
+        "instructionText": "Sec. 5 is amended to set quiet hours for vending near homes and to allow generators on festival days.",
+        "affectedSectionIds": ["sec-5"],
+        "operations": "unstructured" },
+      { "amendmentId": "A2", "enactedOn": "2026-03-01", "effectiveOn": "2026-04-01",
+        "instructionText": "In Sec. 3(a), strike \"thirty (30)\" and insert \"forty-five (45)\".",
+        "affectedSectionIds": ["sec-3"],
+        "operations": [
+          { "op": "replaceText", "sectionId": "sec-3", "old": "thirty (30)", "new": "forty-five (45)",
+            "preimageSha256": "878cc62023842ad0503d9dd0c479b862070aac82ba5a54abc5d0cc6c3409b11f" }
+        ] },
+      { "amendmentId": "A3", "enactedOn": "2026-04-30", "effectiveOn": "2026-06-01",
+        "instructionText": "In Sec. 1, after \"from a mobile food cart\" insert \"or a food truck\". In Sec. 4(a), strike \"ten (10)\" and insert \"seven (7)\".",
+        "affectedSectionIds": ["sec-1", "sec-4"],
+        "operations": [
+          { "op": "replaceText", "sectionId": "sec-1", "old": "from a mobile food cart", "new": "from a mobile food cart or a food truck",
+            "preimageSha256": "017ac77c72d5b4e298f77aa9890fbde5bace452053abf6fae0a28e2f6cf01b16" },
+          { "op": "replaceText", "sectionId": "sec-4", "old": "ten (10)", "new": "seven (7)",
+            "preimageSha256": "94f5c99ca2586b9b1e975a601f83d87747db9ab3187b4ecdfbe1dbdc12df2550" }
+        ] }
+    ]
+  }
+}

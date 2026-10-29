@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "s46.packet.v1",
+  "enactment": {
+    "id": "E05",
+    "title": "Pellam Ridge Dog Licence Ordinance",
+    "fictionalProvenance": {
+      "author": "0805_Claude_Opus55_S46INT",
+      "attestation": "Original fiction written for S46; no copied text.",
+      "license": "CC0-1.0"
+    },
+    "enactedOn": "2026-02-02",
+    "commencesOn": "2026-03-01",
+    "sunsetExclusive": null,
+    "sections": [
+      { "sectionId": "sec-1", "path": "Sec. 1", "heading": "Definitions",
+        "text": "(a) In this ordinance, \"owner\" means a person who keeps a dog at a home in the Borough of Pellam Ridge.\n(b) In this ordinance, \"handler\" means a person paid to walk or board a dog for an owner." },
+      { "sectionId": "sec-2", "path": "Sec. 2", "heading": "Licences",
+        "text": "(a) An owner shall renew the dog licence within thirty (35) calendar days after the licence expires.\n(b) An owner shall attach the licence tag to the dog collar.\n(c) An owner need not license a guide dog." },
+      { "sectionId": "sec-3", "path": "Sec. 3", "heading": "Reminders and handlers",
+        "text": "(a) Except as provided in Sec. 5, the Borough Clerk shall mail a renewal reminder to each owner on or before February 1, 2027.\n(b) A handler shall carry a copy of the dog licence while walking the dog." },
+      { "sectionId": "sec-4", "path": "Sec. 4", "heading": "Late fees",
+        "text": "(a) An owner shall pay a late fee of ten dollars for each late renewal.\n(b) The Borough Clerk may reduce the late fee for a first offence." },
+      { "sectionId": "sec-5", "path": "Sec. 5", "heading": "Reminder exemptions",
+        "text": "A reminder is not mailed to an owner who has opted out under Sec. 6." },
+      { "sectionId": "sec-6", "path": "Sec. 6", "heading": "Opting out",
+        "text": "An owner may opt out of mailed reminders by written request to the Borough Clerk." },
+      { "sectionId": "sec-7", "path": "Sec. 7", "heading": "Short title",
+        "text": "This ordinance may be cited as the Pellam Ridge Dog Licence Ordinance." }
+    ],
+    "amendments": [
+      { "amendmentId": "A1", "enactedOn": "2026-04-30", "effectiveOn": "2026-05-01",
+        "instructionText": "In Sec. 4(a), strike \"fifteen dollars\" and insert \"twenty dollars\".",
+        "affectedSectionIds": ["sec-4"],
+        "operations": [
+          { "op": "replaceText", "sectionId": "sec-4", "old": "fifteen dollars", "new": "twenty dollars" }
+        ] },
+      { "amendmentId": "A2", "enactedOn": "2026-06-30", "effectiveOn": "2026-07-01",
+        "instructionText": "In Sec. 1, strike subsection (b), the definition of \"handler\".",
+        "affectedSectionIds": ["sec-1"],
+        "operations": [
+          { "op": "replaceText", "sectionId": "sec-1",
+            "old": "\n(b) In this ordinance, \"handler\" means a person paid to walk or board a dog for an owner.", "new": "",
+            "preimageSha256": "c5b5c8e889c8e4656b2235417cb9c1b1e8ed21451ebcb835a388994801871607" }
+        ] }
+    ]
+  }
+}

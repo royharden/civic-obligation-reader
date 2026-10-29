@@ -1,0 +1,4 @@
+import type { Resolution, StatePeriod } from '../core/types';
+export function PeriodList({ periods, resolution, onSelect }: { periods: StatePeriod[]; resolution: Resolution; onSelect: (date: string) => void }) {
+  return <section className="periods" aria-label="Version periods"><div>{periods.map(p => <button key={p.stateId} className={p.stateId === resolution.stateId ? 'selected' : ''} onClick={() => onSelect(p.from)}>{p.stateId} · {p.from} → {p.toExclusive ?? 'open'}</button>)}</div><p>{resolution.status === 'not_in_force' ? 'Not in force on this date. No operative rows.' : `Selected ${resolution.stateId}`}</p>{resolution.pending.map(a => <span className="chip" key={a.amendmentId}>Pending {a.amendmentId} · effective {a.effectiveOn}</span>)}{resolution.unapplied.map(a => <span className="chip unknown" key={a.amendmentId}>Unapplied {a.amendmentId} · {a.reason}</span>)}</section>;
+}

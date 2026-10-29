@@ -1,0 +1,43 @@
+{
+  "name": "civic-obligation-reader",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Reads one short, original, fictional enactment with structured amendments and lists who must / must not / may / need not do what, by when, as of a chosen date, quoting the provisions in force. Not legal advice.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "eval": "tsx scripts/eval.ts",
+    "eval:models": "tsx scripts/eval-models.ts",
+    "eval:heldout": "tsx scripts/eval-heldout.ts",
+    "admit": "tsx tools/admit.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.45.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "10.4.0",
+    "@testing-library/jest-dom": "6.6.3",
+    "@testing-library/react": "16.0.1",
+    "@types/node": "22.9.0",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.3",
+    "eslint": "9.25.1",
+    "jsdom": "25.0.1",
+    "tsx": "4.19.2",
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.31.0",
+    "vite": "5.4.10",
+    "vitest": "2.1.4"
+  }
+}

@@ -1,0 +1,343 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "S46 gold line (s46.gold.v1)",
+  "description": "One JSON object per line of gold.jsonl; one contract for dev and hidden gold (PLAN section 4.5). Spans are section-local UTF-16 half-open offsets [start, end) into the hand-written state text states/<stateId>/<sectionId>.txt. Rules JSON Schema cannot express are enforced by tools/author-kit/check-offsets.mts, check-values.mts and query-dates.mts: (queryId, slotId) unique; one triggerDates map and one stateId per queryId; queryId = <enactmentId>@<asOf>; slotId starts with <enactmentId>/ and names the line's sectionId; a no_rows line is the only line of its query; every span slices its state text exactly (clauseText = text.slice(clauseSpan), actor.raw = text.slice(actor evidenceSpan), anchorText inside the deadline evidence); action evidenceSpan = action predicateSpan; a none_stated deadline's evidenceSpan = clauseSpan; eventKey = normKey(anchorText); actor.id = normKey of the defined term as written in its definition when normKey(raw) minus one leading determiner (each, every, any, all, no, such) equals a term defined in that state or that term + s/es, otherwise normKey(raw); dueDate: absolute -> date, relative_calendar_days -> trigger date + n days when triggerDates[eventKey] exists else null, before_event and none_stated -> null; triggerDates keys are already normKey-normalised; the asOf set equals the query-date rule; authors always write contested:false.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "goldSchemaVersion",
+    "split",
+    "provenance",
+    "labeller",
+    "enactmentId",
+    "queryId",
+    "asOf",
+    "stateId",
+    "triggerDates",
+    "slotId",
+    "kind",
+    "traps",
+    "contested"
+  ],
+  "properties": {
+    "goldSchemaVersion": { "const": "s46.gold.v1" },
+    "split": { "enum": ["dev", "hidden"] },
+    "provenance": {
+      "description": "dev-builder-authored (dev gold), hidden-author-A (hidden gold), hidden-relabeller-R (R's blind labels under relabel-sealed/, used only for the admission comparison; they carry triggerDates {}).",
+      "enum": ["dev-builder-authored", "hidden-author-A", "hidden-relabeller-R"]
+    },
+    "labeller": { "type": "string", "minLength": 1 },
+    "enactmentId": { "$ref": "#/$defs/id" },
+    "queryId": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}@[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
+    },
+    "asOf": { "$ref": "#/$defs/date" },
+    "stateId": {
+      "anyOf": [{ "$ref": "#/$defs/stateId" }, { "type": "null" }]
+    },
+    "triggerDates": {
+      "description": "One map per query, identical on every line of that query: { [eventKey]: YYYY-MM-DD }.",
+      "type": "object",
+      "propertyNames": { "minLength": 1 },
+      "additionalProperties": { "$ref": "#/$defs/date" }
+    },
+    "slotId": {
+      "description": "<enactmentId>/<sectionId>/<n>, stable per enactment across all queries and states; <enactmentId>/none/0 for a no_rows line.",
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}/(sec-[0-9]+/[0-9]+|none/0)$"
+    },
+    "kind": { "enum": ["obligation", "negative", "no_rows"] },
+    "sectionId": { "$ref": "#/$defs/sectionId" },
+    "subdivision": {
+      "description": "\"(a)(1)\", \"(a)\" or \"\" for the section's own text.",
+      "type": "string",
+      "pattern": "^(\\([a-z]+\\))?(\\([0-9]+\\))?$"
+    },
+    "clauseSpan": { "$ref": "#/$defs/span" },
+    "clauseText": { "type": "string", "minLength": 1 },
+    "actor": { "$ref": "#/$defs/actorField" },
+    "modality": { "$ref": "#/$defs/modalityField" },
+    "action": { "$ref": "#/$defs/actionField" },
+    "object": { "$ref": "#/$defs/objectField" },
+    "deadline": { "$ref": "#/$defs/deadlineField" },
+    "negativeReason": { "enum": ["definition", "purpose", "non_operative", "injection"] },
+    "traps": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^T([1-9]|1[0-9]|20)$" }
+    },
+    "contested": { "type": "boolean" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "split": { "const": "dev" } }, "required": ["split"] },
+      "then": { "properties": { "provenance": { "const": "dev-builder-authored" } } },
+      "else": { "properties": { "provenance": { "enum": ["hidden-author-A", "hidden-relabeller-R"] } } }
+    },
+    {
+      "if": { "properties": { "provenance": { "const": "hidden-relabeller-R" } }, "required": ["provenance"] },
+      "then": { "properties": { "triggerDates": { "maxProperties": 0 } } }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "obligation" } }, "required": ["kind"] },
+      "then": {
+        "required": ["sectionId", "subdivision", "clauseSpan", "clauseText", "actor", "modality", "action", "deadline"],
+        "properties": {
+          "stateId": { "$ref": "#/$defs/stateId" },
+          "slotId": { "pattern": "/sec-[0-9]+/[0-9]+$" }
+        },
+        "not": { "required": ["negativeReason"] }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "negative" } }, "required": ["kind"] },
+      "then": {
+        "required": ["sectionId", "subdivision", "clauseSpan", "clauseText", "negativeReason"],
+        "properties": {
+          "stateId": { "$ref": "#/$defs/stateId" },
+          "slotId": { "pattern": "/sec-[0-9]+/[0-9]+$" }
+        },
+        "not": {
+          "anyOf": [
+            { "required": ["actor"] },
+            { "required": ["modality"] },
+            { "required": ["action"] },
+            { "required": ["object"] },
+            { "required": ["deadline"] }
+          ]
+        }
+      }
+    },
+    {
+      "if": { "properties": { "kind": { "const": "no_rows" } }, "required": ["kind"] },
+      "then": {
+        "properties": {
+          "stateId": { "type": "null" },
+          "slotId": { "pattern": "/none/0$" }
+        },
+        "not": {
+          "anyOf": [
+            { "required": ["sectionId"] },
+            { "required": ["subdivision"] },
+            { "required": ["clauseSpan"] },
+            { "required": ["clauseText"] },
+            { "required": ["actor"] },
+            { "required": ["modality"] },
+            { "required": ["action"] },
+            { "required": ["object"] },
+            { "required": ["deadline"] },
+            { "required": ["negativeReason"] }
+          ]
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "format": "date"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+    },
+    "sectionId": {
+      "type": "string",
+      "pattern": "^sec-[0-9]+$"
+    },
+    "stateId": {
+      "description": "S0 (from commencesOn), S1, ... in date order; at most 7 states.",
+      "type": "string",
+      "pattern": "^S[0-6]$"
+    },
+    "span": {
+      "description": "[start, end), UTF-16 code units, section-local, start <= end (checked by the author kit).",
+      "type": "array",
+      "minItems": 2,
+      "prefixItems": [
+        { "type": "integer", "minimum": 0 },
+        { "type": "integer", "minimum": 0 }
+      ],
+      "items": false
+    },
+    "goldReason": {
+      "description": "The thirteen unknown reasons gold may use (LABELLING-GUIDE section 8, in its order). The closed list has five more reasons that describe system outputs only and never appear in gold or in R's labels: quote_not_found, not_in_force, version_unknown, model_invalid, screen_blocked (system rows use all eighteen).",
+      "enum": [
+        "actor_undefined",
+        "actor_unstated",
+        "actor_ambiguous",
+        "deadline_anchor_unresolved",
+        "deadline_unsupported",
+        "conflicting_figures",
+        "crossref_unresolved",
+        "crossref_repealed",
+        "reference_depth",
+        "amendment_unapplied",
+        "amendment_conflict",
+        "retroactive_unsupported",
+        "dependency_tainted"
+      ]
+    },
+    "unknownField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unknown"],
+      "properties": {
+        "unknown": { "$ref": "#/$defs/goldReason" }
+      }
+    },
+    "actorField": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["known", "evidenceSpan"],
+          "properties": {
+            "known": {
+              "description": "raw = exact source span text; id = normKey of the defined term as written in its definition when the subject (normKey(raw) minus one leading determiner each/every/any/all/no/such) equals a term defined in the state or that term + s/es, otherwise normKey(raw) (LABELLING-GUIDE 6.1). Scoring compares id only.",
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "raw"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "raw": { "type": "string", "minLength": 1 }
+              }
+            },
+            "evidenceSpan": { "$ref": "#/$defs/span" }
+          }
+        },
+        { "$ref": "#/$defs/unknownField" }
+      ]
+    },
+    "modalityField": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["known", "evidenceSpan"],
+          "properties": {
+            "known": { "enum": ["must", "must_not", "may", "need_not"] },
+            "evidenceSpan": { "$ref": "#/$defs/span" }
+          }
+        },
+        { "$ref": "#/$defs/unknownField" }
+      ]
+    },
+    "actionField": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["known", "evidenceSpan"],
+          "properties": {
+            "known": {
+              "description": "predicateSpan = the complete operative predicate after the modal (the field's evidenceSpan equals it); headVerb = normKey of its first verb token (leading adverbs skipped), one maximal [a-z0-9] run.",
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["predicateSpan", "headVerb"],
+              "properties": {
+                "predicateSpan": { "$ref": "#/$defs/span" },
+                "headVerb": { "type": "string", "pattern": "^[a-z0-9]+$" }
+              }
+            },
+            "evidenceSpan": { "$ref": "#/$defs/span" }
+          }
+        },
+        { "$ref": "#/$defs/unknownField" }
+      ]
+    },
+    "objectField": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["known", "evidenceSpan"],
+          "properties": {
+            "known": { "description": "Exact span text of the object.", "type": "string", "minLength": 1 },
+            "evidenceSpan": { "$ref": "#/$defs/span" }
+          }
+        },
+        { "$ref": "#/$defs/unknownField" }
+      ]
+    },
+    "deadlineField": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["known", "evidenceSpan"],
+          "properties": {
+            "known": { "$ref": "#/$defs/deadlineValue" },
+            "evidenceSpan": { "$ref": "#/$defs/span" }
+          }
+        },
+        { "$ref": "#/$defs/unknownField" }
+      ]
+    },
+    "deadlineValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "dueDate"],
+      "properties": {
+        "kind": { "enum": ["absolute", "relative_calendar_days", "before_event", "none_stated"] },
+        "n": { "type": "integer", "minimum": 0, "maximum": 366 },
+        "unit": { "const": "calendar_days" },
+        "anchorText": { "type": "string", "minLength": 1 },
+        "eventKey": { "type": "string", "minLength": 1 },
+        "date": { "$ref": "#/$defs/date" },
+        "dueDate": { "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }
+      },
+      "dependentRequired": { "eventKey": ["anchorText"] },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "absolute" } }, "required": ["kind"] },
+          "then": {
+            "required": ["date"],
+            "not": {
+              "anyOf": [
+                { "required": ["n"] },
+                { "required": ["unit"] },
+                { "required": ["anchorText"] },
+                { "required": ["eventKey"] }
+              ]
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "relative_calendar_days" } }, "required": ["kind"] },
+          "then": {
+            "required": ["n", "unit", "anchorText", "eventKey"],
+            "not": { "required": ["date"] }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "before_event" } }, "required": ["kind"] },
+          "then": {
+            "required": ["anchorText", "eventKey"],
+            "properties": { "dueDate": { "type": "null" } },
+            "not": {
+              "anyOf": [{ "required": ["n"] }, { "required": ["unit"] }, { "required": ["date"] }]
+            }
+          }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "none_stated" } }, "required": ["kind"] },
+          "then": {
+            "properties": { "dueDate": { "type": "null" } },
+            "not": {
+              "anyOf": [
+                { "required": ["n"] },
+                { "required": ["unit"] },
+                { "required": ["anchorText"] },
+                { "required": ["eventKey"] },
+                { "required": ["date"] }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

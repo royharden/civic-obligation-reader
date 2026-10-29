@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "S46 packet (s46.packet.v1)",
+  "description": "One original, fictional enactment with structured amendments (PLAN section 4.1). Rules JSON Schema cannot express are enforced by tools/author-kit/validate-packet.mts (and later by the app's own validator): file size at most 131072 bytes (128 KiB); strict UTF-8 without BOM; no duplicate JSON keys; nesting depth at most 8; no lone surrogates in any string; every date a real Gregorian date; section ids unique across base sections and addSection ops; amendment ids unique; total sections (base + added) at most 12; at most 7 states (1 + distinct effectiveOn dates); every op target listed in its amendment's affectedSectionIds; every affectedSectionIds entry and every afterSectionId is a base section id or added by some addSection in the packet; sunsetExclusive later than commencesOn; for every amendment effectiveOn >= commencesOn, effectiveOn < sunsetExclusive (when not null) and enactedOn >= enactment.enactedOn. Offsets elsewhere are section-local UTF-16 half-open; hashes are SHA-256 over UTF-8, lowercase hex.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "enactment"],
+  "properties": {
+    "schemaVersion": { "const": "s46.packet.v1" },
+    "enactment": { "$ref": "#/$defs/enactment" }
+  },
+  "$defs": {
+    "date": {
+      "description": "YYYY-MM-DD, a real Gregorian date (day-in-month and leap years checked by the validator).",
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "format": "date"
+    },
+    "id": {
+      "description": "Enactment and amendment ids. Must not contain '/' or '@' because queryId = <enactmentId>@<asOf> and slotId = <enactmentId>/<sectionId>/<n>.",
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$"
+    },
+    "sectionId": {
+      "type": "string",
+      "pattern": "^sec-[0-9]+$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "enactment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "fictionalProvenance",
+        "enactedOn",
+        "commencesOn",
+        "sunsetExclusive",
+        "sections",
+        "amendments"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1 },
+        "fictionalProvenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["author", "attestation", "license"],
+          "properties": {
+            "author": { "type": "string", "minLength": 1 },
+            "attestation": { "type": "string", "minLength": 1 },
+            "license": { "const": "CC0-1.0" }
+          }
+        },
+        "enactedOn": { "$ref": "#/$defs/date" },
+        "commencesOn": { "$ref": "#/$defs/date" },
+        "sunsetExclusive": {
+          "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }]
+        },
+        "sections": {
+          "description": "Base (top-level) sections. Base + added sections together are capped at 12 by the validator.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "items": { "$ref": "#/$defs/section" }
+        },
+        "amendments": {
+          "type": "array",
+          "maxItems": 6,
+          "items": { "$ref": "#/$defs/amendment" }
+        }
+      }
+    },
+    "section": {
+      "description": "Top-level section only; (a) and (1) subdivisions live inside text. Text is kept byte-exact.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sectionId", "path", "heading", "text"],
+      "properties": {
+        "sectionId": { "$ref": "#/$defs/sectionId" },
+        "path": { "type": "string", "pattern": "^Sec\\. [0-9]+$" },
+        "heading": { "type": "string" },
+        "text": { "type": "string", "minLength": 1 }
+      }
+    },
+    "amendment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "amendmentId",
+        "enactedOn",
+        "effectiveOn",
+        "instructionText",
+        "affectedSectionIds",
+        "operations"
+      ],
+      "properties": {
+        "amendmentId": { "$ref": "#/$defs/id" },
+        "enactedOn": { "$ref": "#/$defs/date" },
+        "effectiveOn": { "$ref": "#/$defs/date" },
+        "order": { "type": "integer", "minimum": 0 },
+        "instructionText": { "type": "string", "minLength": 1 },
+        "affectedSectionIds": {
+          "description": "The amendment's target set. Non-empty; must include every op target.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 12,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/sectionId" }
+        },
+        "operations": {
+          "anyOf": [
+            { "const": "unstructured" },
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/operation" }
+            }
+          ]
+        }
+      }
+    },
+    "operation": {
+      "oneOf": [
+        { "$ref": "#/$defs/opReplaceText" },
+        { "$ref": "#/$defs/opInsertAfter" },
+        { "$ref": "#/$defs/opAddSection" },
+        { "$ref": "#/$defs/opRepealSection" }
+      ]
+    },
+    "opReplaceText": {
+      "description": "Replace the single occurrence of old with new (verbatim). Target: sectionId.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["op", "sectionId", "old", "new"],
+      "properties": {
+        "op": { "const": "replaceText" },
+        "sectionId": { "$ref": "#/$defs/sectionId" },
+        "old": { "type": "string", "minLength": 1 },
+        "new": { "type": "string" },
+        "preimageSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "opInsertAfter": {
+      "description": "Insert text verbatim immediately after the end of the single occurrence of anchor. Target: sectionId.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["op", "sectionId", "anchor", "text"],
+      "properties": {
+        "op": { "const": "insertAfter" },
+        "sectionId": { "$ref": "#/$defs/sectionId" },
+        "anchor": { "type": "string", "minLength": 1 },
+        "text": { "type": "string", "minLength": 1 },
+        "preimageSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "opAddSection": {
+      "description": "Add a new top-level section. Target: section.sectionId; afterSectionId is used only for display order.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["op", "afterSectionId", "section"],
+      "properties": {
+        "op": { "const": "addSection" },
+        "afterSectionId": { "$ref": "#/$defs/sectionId" },
+        "section": { "$ref": "#/$defs/section" }
+      }
+    },
+    "opRepealSection": {
+      "description": "Repeal a section. Target: sectionId.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["op", "sectionId"],
+      "properties": {
+        "op": { "const": "repealSection" },
+        "sectionId": { "$ref": "#/$defs/sectionId" },
+        "preimageSha256": { "$ref": "#/$defs/sha256" }
+      }
+    }
+  }
+}

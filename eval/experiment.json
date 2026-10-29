@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "s46.experiment.v1",
+  "frozen": false,
+  "experimentId": "unconfigured",
+  "defaultArm": "B0",
+  "strongerM1b": null,
+  "models": { "small": null, "mid": null },
+  "priceEdition": null,
+  "capsMicroUsd": { "dev": 0, "sealed": 0 },
+  "seeds": { "sample": 46027, "bootstrap": 46028 },
+  "files": {},
+  "modelArms": [],
+  "ownerApproval": null,
+  "selectionEvidence": null,
+  "consumed": false
+}
